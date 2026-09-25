@@ -1,0 +1,193 @@
+﻿<Window x:Class="POS.Views.InventarioWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Inventario" Height="750" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource ColorFondo}"
+        FontFamily="Segoe UI">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="INVENTARIO" FontSize="28" FontWeight="Bold"
+                       Foreground="{StaticResource ColorPrimario}" VerticalAlignment="Center"/>
+            <Button Grid.Column="1" Content="⬅ Regresar al menú" Style="{StaticResource BotonNormal}"
+                    Background="{StaticResource ColorTextoSecundario}" Click="RegresarAlMenu_Click"/>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" Style="{StaticResource CajaTexto}"
+                     Text="{Binding TextoBusqueda, UpdateSourceTrigger=PropertyChanged}"
+                     Margin="0,0,10,0"/>
+            <Button Grid.Column="1" Content="➕ Nuevo producto" Style="{StaticResource BotonNormal}"
+                    Background="{StaticResource ColorPrimario}"
+                    Command="{Binding NuevoProductoCommand}"/>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="380"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LISTA DE PRODUCTOS -->
+            <Border Grid.Column="0" Style="{StaticResource TarjetaProducto}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Productos}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource ColorBorde}" BorderThickness="0,0,0,1" Padding="8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="95"/>
+                                            <ColumnDefinition Width="95"/>
+                                            <ColumnDefinition Width="45"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Grid.Column="0" Width="48" Height="48" CornerRadius="6"
+                                                Background="{StaticResource ColorFondo}" ClipToBounds="True">
+                                            <Image Source="{Binding RutaImagen}" Stretch="UniformToFill"/>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0">
+                                            <TextBlock Text="{Binding Nombre}" FontSize="16" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource ColorTexto}"/>
+                                            <TextBlock Text="{Binding Sku}" FontSize="12"
+                                                       Foreground="{StaticResource ColorTextoSecundario}"/>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="2" Text="{Binding PrecioVenta, StringFormat='{}{0:C2}'}"
+                                                   FontSize="14" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource ColorTexto}"/>
+
+                                        <TextBlock Grid.Column="3" Text="{Binding Existencia}"
+                                                   FontSize="14" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource ColorTextoSecundario}"/>
+
+                                        <Button Grid.Column="4" Content="✏ Editar" Style="{StaticResource BotonNormal}"
+                                                FontSize="12" Padding="6,6" Margin="3,0"
+                                                Command="{Binding DataContext.EditarProductoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"/>
+
+                                        <Button Grid.Column="5" FontSize="12" Padding="6,6" Margin="3,0"
+                                                Command="{Binding DataContext.CambiarEstadoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource BotonNormal}">
+                                                    <Setter Property="Content" Value="🚫 Desact."/>
+                                                    <Setter Property="Background" Value="{StaticResource ColorPeligro}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Activo}" Value="False">
+                                                            <Setter Property="Content" Value="✅ Activar"/>
+                                                            <Setter Property="Background" Value="{StaticResource ColorExito}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+
+                                        <Button Grid.Column="6" Content="🗑" FontSize="14" Padding="4"
+                                                Style="{StaticResource BotonPeligro}"
+                                                Command="{Binding DataContext.EliminarProductoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"/>
+
+                                        <Button Grid.Column="5" FontSize="13" Padding="8,6"
+                                                Command="{Binding DataContext.CambiarEstadoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource BotonNormal}">
+                                                    <Setter Property="Content" Value="🚫 Desactivar"/>
+                                                    <Setter Property="Background" Value="{StaticResource ColorPeligro}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Activo}" Value="False">
+                                                            <Setter Property="Content" Value="✅ Activar"/>
+                                                            <Setter Property="Background" Value="{StaticResource ColorExito}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+
+            <!-- PANEL DE FORMULARIO (crear/editar) -->
+            <Border Grid.Column="2" Style="{StaticResource TarjetaProducto}"
+                    Visibility="{Binding FormularioVisible, Converter={StaticResource BoolAVisible}}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel DataContext="{Binding Formulario}" Margin="4">
+                        <TextBlock Text="{Binding EsNuevo, Converter={StaticResource EsNuevoATitulo}}"
+                                   Style="{StaticResource TituloSeccion}"/>
+
+                        <TextBlock Text="SKU (opcional, se genera solo si lo dejas vacío)" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>                        <TextBox Style="{StaticResource CajaTexto}" Text="{Binding Sku}" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Nombre" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
+                        <TextBox Style="{StaticResource CajaTexto}" Text="{Binding Nombre}" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Descripción" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
+                        <TextBox Style="{StaticResource CajaTexto}" Text="{Binding Descripcion}" Margin="0,0,0,10"
+                                 TextWrapping="Wrap" AcceptsReturn="True" Height="60"/>
+
+                        <TextBlock Text="Categoría" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
+                        <ComboBox ItemsSource="{Binding Categorias}" DisplayMemberPath="Nombre"
+                                  SelectedItem="{Binding CategoriaSeleccionada}"
+                                  FontSize="16" Padding="10,8" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Unidad de medida" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
+                        <ComboBox ItemsSource="{Binding UnidadesDisponibles}"
+                                  SelectedItem="{Binding UnidadSeleccionada}"
+                                  FontSize="16" Padding="10,8" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Precio de compra" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
+                        <TextBox Style="{StaticResource CajaTexto}" Text="{Binding PrecioCompra, StringFormat=N2}" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Precio de venta" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
+                        <TextBox Style="{StaticResource CajaTexto}" Text="{Binding PrecioVenta, StringFormat=N2}" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Existencia" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
+                        <TextBox Style="{StaticResource CajaTexto}" Text="{Binding Existencia, StringFormat=N2}" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Stock mínimo" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
+                        <TextBox Style="{StaticResource CajaTexto}" Text="{Binding StockMinimo, StringFormat=N2}" Margin="0,0,0,10"/>
+
+                        <Button Content="🖼 Elegir foto" Style="{StaticResource BotonNormal}"
+                                Background="{StaticResource ColorAcento}"
+                                Command="{Binding ElegirImagenCommand}" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="{Binding Mensaje}" Style="{StaticResource MensajeError}"
+                                   Visibility="{Binding Mensaje, Converter={StaticResource NuloAColapsado}}"/>
+
+                        <Button Content="💾 Guardar" Style="{StaticResource BotonGrande}"
+                                Command="{Binding GuardarCommand}" Margin="0,10,0,6"/>
+
+                        <Button Content="Cancelar" Style="{StaticResource BotonNormal}"
+                                Background="{StaticResource ColorTextoSecundario}"
+                                Command="{Binding DataContext.CerrarFormularioCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

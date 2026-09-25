@@ -1,0 +1,175 @@
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using POS.Models;
+using POS.Services;
+
+namespace POS.ViewModels;
+
+public partial class MainViewModel : ObservableObject
+{
+    private readonly IProductoService _productoService;
+    private readonly IVentaService _ventaService;
+
+    public ObservableCollection<Producto> ProductosEncontrados { get; } = new();
+    public ObservableCollection<CarritoItemViewModel> Carrito { get; } = new();
+
+    [ObservableProperty]
+    private string textoBusqueda = string.Empty;
+
+    [ObservableProperty]
+    private decimal total;
+
+    [ObservableProperty]
+    private string? mensajeError;
+
+    public MainViewModel(IProductoService productoService, IVentaService ventaService)
+    {
+        _productoService = productoService;
+        _ventaService = ventaService;
+        Carrito.CollectionChanged += Carrito_CollectionChanged;
+        _ = CargarProductosAsync();
+    }
+
+    private void Carrito_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+            foreach (CarritoItemViewModel item in e.NewItems)
+                item.PropertyChanged += CarritoItem_PropertyChanged;
+
+        if (e.OldItems is not null)
+            foreach (CarritoItemViewModel item in e.OldItems)
+                item.PropertyChanged -= CarritoItem_PropertyChanged;
+
+        RecalcularTotal();
+    }
+
+    private void CarritoItem_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(CarritoItemViewModel.Subtotal))
+            RecalcularTotal();
+    }
+
+    private async Task CargarProductosAsync()
+    {
+        var productos = string.IsNullOrWhiteSpace(TextoBusqueda)
+            ? await _productoService.ObtenerActivosAsync()
+            : await _productoService.BuscarAsync(TextoBusqueda);
+
+        ProductosEncontrados.Clear();
+        foreach (var p in productos)
+            ProductosEncontrados.Add(p);
+    }
+
+    partial void OnTextoBusquedaChanged(string value)
+    {
+        _ = CargarProductosAsync();
+    }
+
+    [RelayCommand]
+    private void AgregarAlCarrito(Producto producto)
+    {
+        var existente = Carrito.FirstOrDefault(c => c.Producto.Id == producto.Id);
+
+        if (existente is not null)
+        {
+            existente.Cantidad += 1m;
+            AvisarSiFaltaStock(existente);
+        }
+        else
+        {
+            var item = new CarritoItemViewModel(producto, 1m);
+            Carrito.Add(item);
+            AvisarSiFaltaStock(item);
+        }
+    }
+
+    [RelayCommand]
+    private void IncrementarCantidad(CarritoItemViewModel item)
+    {
+        CambiarCantidad(item, item.Cantidad + 1m);
+    }
+
+    [RelayCommand]
+    private void DecrementarCantidad(CarritoItemViewModel item)
+    {
+        CambiarCantidad(item, item.Cantidad - 1m);
+    }
+
+    [RelayCommand]
+    private void QuitarDelCarrito(CarritoItemViewModel item)
+    {
+        Carrito.Remove(item);
+        MensajeError = null;
+    }
+
+    [RelayCommand]
+    private void VaciarCarrito()
+    {
+        Carrito.Clear();
+        MensajeError = null;
+    }
+
+    public void CambiarCantidad(CarritoItemViewModel item, decimal nuevaCantidad)
+    {
+        if (nuevaCantidad <= 0)
+        {
+            QuitarDelCarrito(item);
+            return;
+        }
+
+        if (!item.Producto.PermiteFraccion)
+            nuevaCantidad = Math.Floor(nuevaCantidad);
+
+        if (nuevaCantidad <= 0)
+        {
+            QuitarDelCarrito(item);
+            return;
+        }
+
+        item.Cantidad = nuevaCantidad;
+        AvisarSiFaltaStock(item);
+    }
+
+    private void AvisarSiFaltaStock(CarritoItemViewModel item)
+    {
+        MensajeError = item.Cantidad > item.Producto.Existencia
+            ? $"Aviso: solo hay {item.Producto.Existencia} {UnidadTexto(item.Producto)} de {item.Producto.Nombre} en inventario. Se venderá bajo pedido."
+            : null;
+    }
+    public async Task<Venta> ConfirmarVentaAsync(decimal dineroRecibido)
+    {
+        var detalles = Carrito.Select(c => new DetalleVenta
+        {
+            ProductoId = c.Producto.Id,
+            NombreProducto = c.Producto.Nombre,
+            Cantidad = c.Cantidad,
+            PrecioUnitario = c.PrecioUnitario,
+            DescuentoPorcentaje = c.DescuentoPorcentaje,
+            Subtotal = c.Subtotal
+        }).ToList();
+
+        var venta = await _ventaService.ConfirmarVentaAsync(detalles, dineroRecibido);
+
+        Carrito.Clear();
+        MensajeError = null;
+        await CargarProductosAsync();
+
+        return venta;
+    }
+
+    private void RecalcularTotal()
+    {
+        Total = Carrito.Sum(c => c.Subtotal);
+    }
+
+    private static string UnidadTexto(Producto producto) => producto.Unidad switch
+    {
+        UnidadMedida.Pieza => "piezas",
+        UnidadMedida.Metro => "metros",
+        UnidadMedida.Kilogramo => "kilogramos",
+        UnidadMedida.Litro => "litros",
+        _ => "unidades"
+    };
+}

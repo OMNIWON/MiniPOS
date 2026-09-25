@@ -1,0 +1,52 @@
+﻿<Window x:Class="POS.Views.ShellWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Punto de Venta" Height="750" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource ColorFondo}"
+        FontFamily="Segoe UI">
+
+    <Grid Margin="40">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="¿Qué deseas hacer?"
+                   FontSize="32" FontWeight="Bold"
+                   Foreground="{StaticResource ColorAcento}"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,40"/>
+
+        <UniformGrid Grid.Row="1" Columns="2" Rows="2">
+
+            <Border Style="{StaticResource TarjetaProducto}" Margin="16">
+                <Button Content="🛒&#10;VENTA" Style="{StaticResource BotonGrande}"
+                        FontSize="28" Height="180"
+                        Click="AbrirVenta_Click"/>
+            </Border>
+
+            <Border Style="{StaticResource TarjetaProducto}" Margin="16">
+                <Button Content="📋&#10;COTIZAR" Style="{StaticResource BotonGrande}"
+                        FontSize="28" Height="180"
+                        Background="{StaticResource ColorAcento}"
+                        Click="AbrirCotizar_Click"/>
+            </Border>
+
+            <Border Style="{StaticResource TarjetaProducto}" Margin="16">
+                <Button Content="📦&#10;INVENTARIO" Style="{StaticResource BotonGrande}"
+                        FontSize="28" Height="180"
+                        Background="{StaticResource ColorPrimario}"
+                        Click="AbrirInventario_Click"/>
+            </Border>
+
+            <Border Style="{StaticResource TarjetaProducto}" Margin="16">
+                <Button Content="📊&#10;HISTORIAL" Style="{StaticResource BotonGrande}"
+                        FontSize="28" Height="180"
+                        Background="{StaticResource ColorTextoSecundario}"
+                        Click="AbrirHistorial_Click"/>
+            </Border>
+
+        </UniformGrid>
+    </Grid>
+</Window>

@@ -1,0 +1,75 @@
+﻿<Window x:Class="POS.Views.CobroWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Cobro" Height="650" Width="520"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource ColorFondo}"
+        FontFamily="Segoe UI">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="COBRO" FontSize="26" FontWeight="Bold"
+                   Foreground="{StaticResource ColorAcento}" Margin="0,0,0,16"/>
+
+        <Border Grid.Row="1" Style="{StaticResource TarjetaProducto}" Margin="0,0,0,16">
+            <StackPanel>
+                <Grid Margin="0,0,0,8">
+                    <TextBlock Text="TOTAL" FontSize="16" Foreground="{StaticResource ColorTextoSecundario}"/>
+                    <TextBlock Text="{Binding Total, StringFormat='{}{0:C2}'}" FontSize="24" FontWeight="Bold"
+                               HorizontalAlignment="Right" Foreground="{StaticResource ColorTexto}"/>
+                </Grid>
+                <Grid Margin="0,0,0,8">
+                    <TextBlock Text="RECIBIDO" FontSize="16" Foreground="{StaticResource ColorTextoSecundario}"/>
+                    <TextBlock Text="{Binding DineroRecibido, StringFormat='{}{0:C2}'}" FontSize="24" FontWeight="Bold"
+                               HorizontalAlignment="Right" Foreground="{StaticResource ColorPrimario}"/>
+                </Grid>
+                <Separator Margin="0,4"/>
+                <Grid Margin="0,8,0,0">
+                    <TextBlock Text="CAMBIO" FontSize="20" FontWeight="Bold" Foreground="{StaticResource ColorTextoSecundario}"/>
+                    <TextBlock Text="{Binding Cambio, StringFormat='{}{0:C2}'}" FontSize="32" FontWeight="Bold"
+                               HorizontalAlignment="Right" Foreground="{StaticResource ColorExito}"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <TextBox Grid.Row="2" Style="{StaticResource CajaTexto}" FontSize="24" TextAlignment="Center"
+                 Text="{Binding DineroRecibido, UpdateSourceTrigger=LostFocus, StringFormat=N2}"
+                 Margin="0,0,0,16"/>
+
+        <UniformGrid Grid.Row="3" Columns="3" Rows="2">
+            <Button Content="$50" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
+                    Command="{Binding AgregarMontoCommand}" CommandParameter="50"/>
+            <Button Content="$100" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
+                    Command="{Binding AgregarMontoCommand}" CommandParameter="100"/>
+            <Button Content="$200" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
+                    Command="{Binding AgregarMontoCommand}" CommandParameter="200"/>
+            <Button Content="$500" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
+                    Command="{Binding AgregarMontoCommand}" CommandParameter="500"/>
+            <Button Content="$1000" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
+                    Command="{Binding AgregarMontoCommand}" CommandParameter="1000"/>
+            <Button Content="Limpiar" Style="{StaticResource BotonPeligro}" FontSize="18" Margin="4"
+                    Command="{Binding LimpiarMontoCommand}"/>
+        </UniformGrid>
+
+        <StackPanel Grid.Row="4" Margin="0,16,0,0">
+            <Button Content="PAGO EXACTO" Style="{StaticResource BotonNormal}"
+                    Background="{StaticResource ColorAcento}" FontSize="18" Margin="0,0,0,10"
+                    Command="{Binding PagoExactoCommand}"/>
+
+            <Button x:Name="BotonConfirmar" Content="✅ CONFIRMAR VENTA" Style="{StaticResource BotonGrande}"
+                    IsEnabled="{Binding PuedeConfirmar}"
+                    Click="Confirmar_Click"/>
+
+            <Button Content="Cancelar" Style="{StaticResource BotonNormal}"
+                    Background="{StaticResource ColorTextoSecundario}" Margin="0,10,0,0"
+                    Click="Cancelar_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

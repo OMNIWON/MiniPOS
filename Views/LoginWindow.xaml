@@ -1,0 +1,38 @@
+﻿<Window x:Class="POS.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Iniciar sesión" Height="500" Width="420"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource ColorFondo}"
+        FontFamily="Segoe UI"
+        ResizeMode="NoResize">
+
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="PUNTO DE VENTA" FontSize="26" FontWeight="Bold"
+                   Foreground="{StaticResource ColorAcento}" HorizontalAlignment="Center"
+                   Margin="0,0,0,30"/>
+
+        <Border Grid.Row="1" Style="{StaticResource TarjetaProducto}" VerticalAlignment="Top">
+            <StackPanel>
+                <TextBlock Text="Usuario" FontSize="14" Foreground="{StaticResource ColorTextoSecundario}" Margin="0,0,0,4"/>
+                <TextBox x:Name="CajaUsuario" Style="{StaticResource CajaTexto}"
+                         Text="{Binding NombreUsuario, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,0,14"/>
+
+                <TextBlock Text="Contraseña" FontSize="14" Foreground="{StaticResource ColorTextoSecundario}" Margin="0,0,0,4"/>
+                <PasswordBox x:Name="CajaContrasena" FontSize="18" Padding="12,10"
+                             BorderBrush="{StaticResource ColorBorde}" Margin="0,0,0,6"/>
+
+                <TextBlock Text="{Binding Mensaje}" Style="{StaticResource MensajeError}"/>
+
+                <Button x:Name="BotonEntrar" Content="🔓 Entrar" Style="{StaticResource BotonGrande}"
+                        Margin="0,20,0,0" Click="Entrar_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

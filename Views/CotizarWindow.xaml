@@ -1,0 +1,182 @@
+﻿<Window x:Class="POS.Views.CotizarWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Cotizar" Height="750" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource ColorFondo}"
+        FontFamily="Segoe UI">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="COTIZACIÓN" FontSize="28" FontWeight="Bold"
+                       Foreground="{StaticResource ColorAcento}" VerticalAlignment="Center"/>
+            <Button Grid.Column="1" Content="⬅ Regresar al menú" Style="{StaticResource BotonNormal}"
+                    Background="{StaticResource ColorTextoSecundario}" Click="RegresarAlMenu_Click"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.3*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource TarjetaProducto}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Buscar producto" Style="{StaticResource TituloSeccion}"/>
+                    <TextBox Grid.Row="1" Style="{StaticResource CajaTexto}"
+                             Text="{Binding TextoBusqueda, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,12"/>
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding ProductosEncontrados}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource TarjetaProducto}" Width="220">
+                                        <StackPanel>
+                                            <Border Height="150" CornerRadius="8" Margin="0,0,0,6"
+                                                    Background="{StaticResource ColorFondo}" ClipToBounds="True">
+                                                <Image Source="{Binding RutaImagen}" Stretch="Uniform"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding Nombre}" FontSize="14" FontWeight="SemiBold"
+                                                       TextWrapping="Wrap" Foreground="{StaticResource ColorTexto}"/>
+                                            <TextBlock Text="{Binding PrecioVenta, StringFormat='{}{0:C2}'}"
+                                                       FontSize="16" FontWeight="Bold" Margin="0,3,0,0"
+                                                       Foreground="{StaticResource ColorPrimario}"/>
+                                            <TextBlock Text="{Binding Existencia, StringFormat='Existencia: {0}'}"
+                                                       FontSize="12" Foreground="{StaticResource ColorTextoSecundario}"
+                                                       Margin="0,2,0,8"/>
+                                            <Button Content="➕ Agregar" Style="{StaticResource BotonNormal}"
+                                                    Background="{StaticResource ColorAcento}"
+                                                    Command="{Binding DataContext.AgregarAlCarritoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource TarjetaProducto}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Cotización" Style="{StaticResource TituloSeccion}"/>
+
+                    <TextBox Grid.Row="1" Style="{StaticResource CajaTexto}"
+                             Text="{Binding Cliente, UpdateSourceTrigger=PropertyChanged}"
+                             Tag="Cliente (opcional)" Margin="0,0,0,12"/>
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Carrito}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource ColorBorde}" BorderThickness="0,0,0,1"
+                                            Padding="0,10">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Producto.Nombre}"
+                                                       FontSize="16" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource ColorTexto}"/>
+                                            <Grid Margin="0,6,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="34"/>
+                                                    <ColumnDefinition Width="50"/>
+                                                    <ColumnDefinition Width="34"/>
+                                                    <ColumnDefinition Width="80"/>
+                                                    <ColumnDefinition Width="70"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="36"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Button Grid.Column="0" Content="−" FontSize="16" Padding="0"
+                                                        Style="{StaticResource BotonNormal}"
+                                                        Command="{Binding DataContext.DecrementarCantidadCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"/>
+
+                                                <TextBox Grid.Column="1" Text="{Binding Cantidad, UpdateSourceTrigger=LostFocus}"
+                                                         FontSize="14" VerticalAlignment="Center" Margin="3,0"
+                                                         TextAlignment="Center" Padding="3"/>
+
+                                                <Button Grid.Column="2" Content="+" FontSize="16" Padding="0"
+                                                        Style="{StaticResource BotonNormal}"
+                                                        Command="{Binding DataContext.IncrementarCantidadCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"/>
+
+                                                <TextBox Grid.Column="3" Text="{Binding PrecioUnitario, UpdateSourceTrigger=LostFocus, StringFormat=N2}"
+                                                         FontSize="14" VerticalAlignment="Center" Margin="6,0,3,0"
+                                                         TextAlignment="Right" Padding="3"/>
+
+                                                <TextBox Grid.Column="4" Text="{Binding DescuentoPorcentaje, UpdateSourceTrigger=LostFocus, StringFormat=N0}"
+                                                         FontSize="14" VerticalAlignment="Center" Margin="3,0"
+                                                         TextAlignment="Right" Padding="3"/>
+
+                                                <TextBlock Grid.Column="5" Text="{Binding Subtotal, StringFormat='{}{0:C2}'}"
+                                                           FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"
+                                                           HorizontalAlignment="Right" Foreground="{StaticResource ColorTexto}"/>
+
+                                                <Button Grid.Column="6" Content="🗑" FontSize="14"
+                                                        Style="{StaticResource BotonPeligro}" Padding="2"
+                                                        Command="{Binding DataContext.QuitarDelCarritoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"/>
+                                            </Grid>
+                                            <TextBlock Text="Cant. | Precio | Descuento %" FontSize="11"
+                                                       Foreground="{StaticResource ColorTextoSecundario}" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <TextBlock Grid.Row="3" Text="{Binding MensajeInfo}" Style="{StaticResource MensajeError}"
+                               Visibility="{Binding MensajeInfo, Converter={StaticResource NuloAColapsado}}"/>
+
+                    <Grid Grid.Row="4" Margin="0,16,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="TOTAL" FontSize="20" VerticalAlignment="Center"
+                                   Foreground="{StaticResource ColorTextoSecundario}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Total, StringFormat='{}{0:C2}'}"
+                                   Style="{StaticResource TextoTotal}" Foreground="{StaticResource ColorAcento}"/>
+                    </Grid>
+
+                    <Button Grid.Row="5" Content="📋 GUARDAR COTIZACIÓN" Style="{StaticResource BotonGrande}"
+                            Background="{StaticResource ColorAcento}"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding GuardarCotizacionCommand}"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
