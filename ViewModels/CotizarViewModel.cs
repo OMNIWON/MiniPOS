@@ -128,21 +128,29 @@ public partial class CotizarViewModel : ObservableObject
             return;
         }
 
-        var detalles = Carrito.Select(c => new DetalleCotizacion
+        try
         {
-            ProductoId = c.Producto.Id,
-            NombreProducto = c.Producto.Nombre,
-            Cantidad = c.Cantidad,
-            PrecioUnitario = c.PrecioUnitario,
-            DescuentoPorcentaje = c.DescuentoPorcentaje,
-            Subtotal = c.Subtotal
-        }).ToList();
+            var detalles = Carrito.Select(c => new DetalleCotizacion
+            {
+                ProductoId = c.Producto.Id,
+                NombreProducto = c.Producto.Nombre,
+                Cantidad = c.Cantidad,
+                PrecioUnitario = c.PrecioUnitario,
+                DescuentoPorcentaje = c.DescuentoPorcentaje,
+                Subtotal = c.Subtotal
+            }).ToList();
 
-        await _cotizacionService.GuardarAsync(detalles, Cliente);
+            await _cotizacionService.GuardarAsync(detalles, Cliente);
 
-        Carrito.Clear();
-        Cliente = null;
-        MensajeInfo = "Cotización guardada correctamente.";
+            Carrito.Clear();
+            Cliente = null;
+            MensajeInfo = "Cotización guardada correctamente.";
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.Log(ex, "Guardado de cotización");
+            MensajeInfo = "No se pudo guardar la cotización. Revisa los datos e inténtalo nuevamente.";
+        }
     }
 
     private void RecalcularTotal()
