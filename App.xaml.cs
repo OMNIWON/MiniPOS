@@ -127,8 +127,8 @@ public partial class App : Application
     {
         ErrorLogger.Log(e.Exception, "Dispatcher WPF");
         MessageBox.Show(
-            "Ocurrió un problema inesperado. La operación podría no haberse completado.\\n\\n" +
-            "El error quedó registrado localmente. Si vuelve a ocurrir, informa al responsable del sistema.\\n\\n" +
+            "Ocurrió un problema inesperado. La operación podría no haberse completado.\n\n" +
+            "El error quedó registrado localmente. Si vuelve a ocurrir, informa al responsable del sistema.\n\n" +
             $"Detalle: {e.Exception.Message}",
             "Aviso",
             MessageBoxButton.OK,
