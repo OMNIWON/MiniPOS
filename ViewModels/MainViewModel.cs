@@ -56,13 +56,21 @@ public partial class MainViewModel : ObservableObject
 
     private async Task CargarProductosAsync()
     {
-        var productos = string.IsNullOrWhiteSpace(TextoBusqueda)
-            ? await _productoService.ObtenerActivosAsync()
-            : await _productoService.BuscarAsync(TextoBusqueda);
+        try
+        {
+            var productos = string.IsNullOrWhiteSpace(TextoBusqueda)
+                ? await _productoService.ObtenerActivosAsync()
+                : await _productoService.BuscarAsync(TextoBusqueda);
 
-        ProductosEncontrados.Clear();
-        foreach (var p in productos)
-            ProductosEncontrados.Add(p);
+            ProductosEncontrados.Clear();
+            foreach (var producto in productos)
+                ProductosEncontrados.Add(producto);
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.Log(ex, "Carga de productos para venta");
+            MensajeError = "No se pudieron cargar los productos. Verifica la conexión con la base de datos.";
+        }
     }
 
     partial void OnTextoBusquedaChanged(string value)
@@ -144,6 +152,54 @@ public partial class MainViewModel : ObservableObject
         Subtotal = DesgloseActual.Subtotal;
         Impuestos = DesgloseActual.Impuestos;
         Total = DesgloseActual.Total;
+    }
+
+    public async Task CargarCotizacionAsync(Cotizacion cotizacion)
+    {
+        if (cotizacion.Detalles.Count == 0)
+            throw new InvalidOperationException("La cotización no contiene artículos.");
+
+        Carrito.Clear();
+        foreach (var detalle in cotizacion.Detalles)
+        {
+            var producto = await _productoService.ObtenerPorIdAsync(detalle.ProductoId);
+            if (producto is null)
+                throw new InvalidOperationException($"No se encontró el producto '{detalle.NombreProducto}' de la cotización.");
+
+            var item = new CarritoItemViewModel(producto, detalle.Cantidad)
+            {
+                PrecioUnitario = detalle.PrecioUnitario,
+                DescuentoPorcentaje = detalle.DescuentoPorcentaje
+            };
+            Carrito.Add(item);
+            AvisarSiFaltaStock(item);
+        }
+
+        RecalcularTotal();
+    }
+
+    public async Task CargarCotizacionAsync(Cotizacion cotizacion)
+    {
+        if (cotizacion.Detalles.Count == 0)
+            throw new InvalidOperationException("La cotización no contiene artículos.");
+
+        Carrito.Clear();
+        foreach (var detalle in cotizacion.Detalles)
+        {
+            var producto = await _productoService.ObtenerPorIdAsync(detalle.ProductoId);
+            if (producto is null)
+                throw new InvalidOperationException($"No se encontró el producto '{detalle.NombreProducto}' de la cotización.");
+
+            var item = new CarritoItemViewModel(producto, detalle.Cantidad)
+            {
+                PrecioUnitario = detalle.PrecioUnitario,
+                DescuentoPorcentaje = detalle.DescuentoPorcentaje
+            };
+            Carrito.Add(item);
+            AvisarSiFaltaStock(item);
+        }
+
+        RecalcularTotal();
     }
 
     public async Task<Venta> ConfirmarVentaAsync(decimal dineroRecibido, MetodoPago metodoPago)

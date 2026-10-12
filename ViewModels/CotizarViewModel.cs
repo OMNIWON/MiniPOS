@@ -56,13 +56,21 @@ public partial class CotizarViewModel : ObservableObject
 
     private async Task CargarProductosAsync()
     {
-        var productos = string.IsNullOrWhiteSpace(TextoBusqueda)
-            ? await _productoService.ObtenerActivosAsync()
-            : await _productoService.BuscarAsync(TextoBusqueda);
+        try
+        {
+            var productos = string.IsNullOrWhiteSpace(TextoBusqueda)
+                ? await _productoService.ObtenerActivosAsync()
+                : await _productoService.BuscarAsync(TextoBusqueda);
 
-        ProductosEncontrados.Clear();
-        foreach (var p in productos)
-            ProductosEncontrados.Add(p);
+            ProductosEncontrados.Clear();
+            foreach (var producto in productos)
+                ProductosEncontrados.Add(producto);
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.Log(ex, "Carga de productos para cotización");
+            MensajeInfo = "No se pudieron cargar los productos. Verifica la conexión con la base de datos.";
+        }
     }
 
     partial void OnTextoBusquedaChanged(string value)
@@ -120,21 +128,29 @@ public partial class CotizarViewModel : ObservableObject
             return;
         }
 
-        var detalles = Carrito.Select(c => new DetalleCotizacion
+        try
         {
-            ProductoId = c.Producto.Id,
-            NombreProducto = c.Producto.Nombre,
-            Cantidad = c.Cantidad,
-            PrecioUnitario = c.PrecioUnitario,
-            DescuentoPorcentaje = c.DescuentoPorcentaje,
-            Subtotal = c.Subtotal
-        }).ToList();
+            var detalles = Carrito.Select(c => new DetalleCotizacion
+            {
+                ProductoId = c.Producto.Id,
+                NombreProducto = c.Producto.Nombre,
+                Cantidad = c.Cantidad,
+                PrecioUnitario = c.PrecioUnitario,
+                DescuentoPorcentaje = c.DescuentoPorcentaje,
+                Subtotal = c.Subtotal
+            }).ToList();
 
-        await _cotizacionService.GuardarAsync(detalles, Cliente);
+            await _cotizacionService.GuardarAsync(detalles, Cliente);
 
-        Carrito.Clear();
-        Cliente = null;
-        MensajeInfo = "Cotización guardada correctamente.";
+            Carrito.Clear();
+            Cliente = null;
+            MensajeInfo = "Cotización guardada correctamente.";
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.Log(ex, "Guardado de cotización");
+            MensajeInfo = "No se pudo guardar la cotización. Revisa los datos e inténtalo nuevamente.";
+        }
     }
 
     private void RecalcularTotal()

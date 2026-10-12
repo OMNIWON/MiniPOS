@@ -77,6 +77,12 @@ namespace POS.Migrations
                     b.Property<string>("Cliente")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Nota1")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nota2")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
 
@@ -263,6 +269,12 @@ namespace POS.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Nota")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nota1")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nota2")
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Subtotal")
