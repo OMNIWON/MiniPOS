@@ -32,6 +32,7 @@ public partial class App : Application
                 services.AddScoped<IVentaService, VentaService>();
                 services.AddScoped<ICotizacionService, CotizacionService>();
                 services.AddSingleton<CotizacionTransferService>();
+                services.AddSingleton<CotizacionTransferService>();
                 services.AddScoped<IAuthService, AuthService>();
                 services.AddScoped<IBackupService, BackupService>();
                 services.AddSingleton<IConfiguracionService, ConfiguracionService>();
