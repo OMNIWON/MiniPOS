@@ -40,13 +40,25 @@ public partial class HistorialViewModel : ObservableObject
 
     private async Task CargarAsync()
     {
-        Ventas.Clear();
-        foreach (var v in await _ventaService.ObtenerHistorialAsync())
-            Ventas.Add(v);
+        try
+        {
+            var ventas = await _ventaService.ObtenerHistorialAsync();
+            var cotizaciones = await _cotizacionService.ObtenerHistorialAsync();
 
-        Cotizaciones.Clear();
-        foreach (var c in await _cotizacionService.ObtenerHistorialAsync())
-            Cotizaciones.Add(c);
+            Ventas.Clear();
+            foreach (var venta in ventas)
+                Ventas.Add(venta);
+
+            Cotizaciones.Clear();
+            foreach (var cotizacion in cotizaciones)
+                Cotizaciones.Add(cotizacion);
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.Log(ex, "Carga del historial");
+            MessageBox.Show("No se pudo cargar el historial. Revisa la base de datos e inténtalo nuevamente.\\n\\n" + ex.Message,
+                "Error al cargar historial", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     [RelayCommand]
