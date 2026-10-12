@@ -43,6 +43,7 @@ public class CotizacionService : ICotizacionService
         return await _context.Cotizaciones
             .AsNoTracking()
             .Include(c => c.Detalles)
+                .ThenInclude(d => d.Producto)
             .FirstOrDefaultAsync(c => c.Id == cotizacionId);
     }
     public async Task GuardarNotasAsync(int cotizacionId, string? nota1, string? nota2)
