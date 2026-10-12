@@ -19,6 +19,8 @@ public partial class MainWindow : Window
         DataContext = viewModel;
     }
 
+    public Task CargarCotizacionAsync(Cotizacion cotizacion) => _viewModel.CargarCotizacionAsync(cotizacion);
+
     private void RegresarAlMenu_Click(object sender, RoutedEventArgs e)
     {
         Close();
