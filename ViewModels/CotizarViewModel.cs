@@ -56,13 +56,21 @@ public partial class CotizarViewModel : ObservableObject
 
     private async Task CargarProductosAsync()
     {
-        var productos = string.IsNullOrWhiteSpace(TextoBusqueda)
-            ? await _productoService.ObtenerActivosAsync()
-            : await _productoService.BuscarAsync(TextoBusqueda);
+        try
+        {
+            var productos = string.IsNullOrWhiteSpace(TextoBusqueda)
+                ? await _productoService.ObtenerActivosAsync()
+                : await _productoService.BuscarAsync(TextoBusqueda);
 
-        ProductosEncontrados.Clear();
-        foreach (var p in productos)
-            ProductosEncontrados.Add(p);
+            ProductosEncontrados.Clear();
+            foreach (var producto in productos)
+                ProductosEncontrados.Add(producto);
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.Log(ex, "Carga de productos para cotización");
+            MensajeInfo = "No se pudieron cargar los productos. Verifica la conexión con la base de datos.";
+        }
     }
 
     partial void OnTextoBusquedaChanged(string value)
