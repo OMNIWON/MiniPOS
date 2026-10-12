@@ -56,7 +56,7 @@ public partial class HistorialViewModel : ObservableObject
         catch (Exception ex)
         {
             ErrorLogger.Log(ex, "Carga del historial");
-            MessageBox.Show("No se pudo cargar el historial. Revisa la base de datos e inténtalo nuevamente.\\n\\n" + ex.Message,
+            MessageBox.Show("No se pudo cargar el historial. Revisa la base de datos e inténtalo nuevamente.\n\n" + ex.Message,
                 "Error al cargar historial", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
@@ -98,7 +98,7 @@ public partial class HistorialViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"No se pudieron guardar las notas.\\n\\nDetalle: {ex.Message}", "Error al guardar notas", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show($"No se pudieron guardar las notas.\n\nDetalle: {ex.Message}", "Error al guardar notas", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -117,7 +117,7 @@ public partial class HistorialViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"No se pudieron guardar las notas.\\n\\nDetalle: {ex.Message}", "Error al guardar notas", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show($"No se pudieron guardar las notas.\n\nDetalle: {ex.Message}", "Error al guardar notas", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -130,7 +130,7 @@ public partial class HistorialViewModel : ObservableObject
             return;
         }
 
-        var confirmar = MessageBox.Show($"¿Cargar los {cotizacion.Detalles.Count} artículos de la cotización de {cotizacion.Fecha:dd/MM/yyyy HH:mm} al carrito de venta?\\n\\nLa cotización original se conservará.", "Crear venta desde cotización", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        var confirmar = MessageBox.Show($"¿Cargar los {cotizacion.Detalles.Count} artículos de la cotización de {cotizacion.Fecha:dd/MM/yyyy HH:mm} al carrito de venta?\n\nLa cotización original se conservará.", "Crear venta desde cotización", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (confirmar != MessageBoxResult.Yes) return;
 
         _cotizacionTransfer.Preparar(cotizacion);
