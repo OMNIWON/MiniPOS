@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using POS.Models;
 using POS.Services;
+using POS.Views;
 
 namespace POS.ViewModels;
 
@@ -12,6 +13,9 @@ public partial class HistorialViewModel : ObservableObject
     private readonly IVentaService _ventaService;
     private readonly ICotizacionService _cotizacionService;
     private readonly ITicketService _ticketService;
+    private readonly CotizacionTransferService _cotizacionTransfer;
+
+    public event Action? SolicitarCerrar;
 
     public ObservableCollection<Venta> Ventas { get; } = new();
     public ObservableCollection<Cotizacion> Cotizaciones { get; } = new();
@@ -25,11 +29,12 @@ public partial class HistorialViewModel : ObservableObject
     [ObservableProperty]
     private Cotizacion? cotizacionSeleccionada;
 
-    public HistorialViewModel(IVentaService ventaService, ICotizacionService cotizacionService, ITicketService ticketService)
+    public HistorialViewModel(IVentaService ventaService, ICotizacionService cotizacionService, ITicketService ticketService, CotizacionTransferService cotizacionTransfer)
     {
         _ventaService = ventaService;
         _cotizacionService = cotizacionService;
         _ticketService = ticketService;
+        _cotizacionTransfer = cotizacionTransfer;
         _ = CargarAsync();
     }
 
@@ -65,6 +70,60 @@ public partial class HistorialViewModel : ObservableObject
 
     [RelayCommand]
     private void SeleccionarCotizacion(Cotizacion cotizacion) => CotizacionSeleccionada = cotizacion;
+
+    [RelayCommand]
+    private async Task EditarNotasVentaAsync(Venta venta)
+    {
+        var ventana = new NotasWindow(venta.Nota1, venta.Nota2);
+        if (ventana.ShowDialog() != true) return;
+
+        try
+        {
+            await _ventaService.GuardarNotasAsync(venta.Id, ventana.Nota1, ventana.Nota2);
+            venta.Nota1 = ventana.Nota1;
+            venta.Nota2 = ventana.Nota2;
+            OnPropertyChanged(nameof(Ventas));
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"No se pudieron guardar las notas.\\n\\nDetalle: {ex.Message}", "Error al guardar notas", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    [RelayCommand]
+    private async Task EditarNotasCotizacionAsync(Cotizacion cotizacion)
+    {
+        var ventana = new NotasWindow(cotizacion.Nota1, cotizacion.Nota2);
+        if (ventana.ShowDialog() != true) return;
+
+        try
+        {
+            await _cotizacionService.GuardarNotasAsync(cotizacion.Id, ventana.Nota1, ventana.Nota2);
+            cotizacion.Nota1 = ventana.Nota1;
+            cotizacion.Nota2 = ventana.Nota2;
+            OnPropertyChanged(nameof(Cotizaciones));
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"No se pudieron guardar las notas.\\n\\nDetalle: {ex.Message}", "Error al guardar notas", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    [RelayCommand]
+    private void PasarAVenta(Cotizacion cotizacion)
+    {
+        if (cotizacion.Detalles.Count == 0)
+        {
+            MessageBox.Show("Esta cotización no contiene artículos.", "Cotización vacía", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var confirmar = MessageBox.Show($"¿Cargar los {cotizacion.Detalles.Count} artículos de la cotización de {cotizacion.Fecha:dd/MM/yyyy HH:mm} al carrito de venta?\\n\\nLa cotización original se conservará.", "Crear venta desde cotización", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (confirmar != MessageBoxResult.Yes) return;
+
+        _cotizacionTransfer.Preparar(cotizacion);
+        SolicitarCerrar?.Invoke();
+    }
 
     [RelayCommand]
     private void ImprimirTicket(Venta venta)
