@@ -33,6 +33,7 @@ public class CotizacionService : ICotizacionService
         return await _context.Cotizaciones
             .AsNoTracking()
             .Include(c => c.Detalles)
+                .ThenInclude(d => d.Producto)
             .OrderByDescending(c => c.Fecha)
             .ToListAsync();
     }
