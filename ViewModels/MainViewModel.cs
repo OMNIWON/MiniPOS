@@ -146,6 +146,30 @@ public partial class MainViewModel : ObservableObject
         Total = DesgloseActual.Total;
     }
 
+    public async Task CargarCotizacionAsync(Cotizacion cotizacion)
+    {
+        if (cotizacion.Detalles.Count == 0)
+            throw new InvalidOperationException("La cotización no contiene artículos.");
+
+        Carrito.Clear();
+        foreach (var detalle in cotizacion.Detalles)
+        {
+            var producto = await _productoService.ObtenerPorIdAsync(detalle.ProductoId);
+            if (producto is null)
+                throw new InvalidOperationException($"No se encontró el producto '{detalle.NombreProducto}' de la cotización.");
+
+            var item = new CarritoItemViewModel(producto, detalle.Cantidad)
+            {
+                PrecioUnitario = detalle.PrecioUnitario,
+                DescuentoPorcentaje = detalle.DescuentoPorcentaje
+            };
+            Carrito.Add(item);
+            AvisarSiFaltaStock(item);
+        }
+
+        RecalcularTotal();
+    }
+
     public async Task<Venta> ConfirmarVentaAsync(decimal dineroRecibido, MetodoPago metodoPago)
     {
         var detalles = Carrito.Select(c => new DetalleVenta
