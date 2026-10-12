@@ -89,6 +89,17 @@ public class VentaService : IVentaService
         }
     }
 
+    public async Task GuardarNotasAsync(int ventaId, string? nota1, string? nota2)
+    {
+        var venta = await _context.Ventas.FirstOrDefaultAsync(v => v.Id == ventaId);
+        if (venta is null)
+            throw new InvalidOperationException("La venta ya no existe en el historial.");
+
+        venta.Nota1 = nota1;
+        venta.Nota2 = nota2;
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<List<Venta>> ObtenerHistorialAsync()
     {
         return await _context.Ventas
