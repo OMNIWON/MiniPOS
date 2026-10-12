@@ -9,5 +9,6 @@ public interface IVentaService
     Task<List<Venta>> ObtenerHistorialAsync();
     Task<Venta?> ObtenerDetalleAsync(int ventaId);
     Task AnularVentaAsync(int ventaId);
+    Task GuardarNotasAsync(int ventaId, string? nota1, string? nota2);
     Task<decimal> ObtenerTotalVentasHoyAsync();
 }
