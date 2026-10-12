@@ -61,6 +61,13 @@ public partial class App : Application
     {
         base.OnStartup(e);
         DispatcherUnhandledException += App_DispatcherUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+            ErrorLogger.Log(args.ExceptionObject as Exception ?? new Exception("Excepción no administrada."), "AppDomain");
+        TaskScheduler.UnobservedTaskException += (_, args) =>
+        {
+            ErrorLogger.Log(args.Exception, "Tarea asíncrona no observada");
+            args.SetObserved();
+        };
 
         var splash = new POS.Views.SplashWindow();
         splash.Show();
@@ -82,6 +89,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
+            ErrorLogger.Log(ex, "Inicio de aplicación / base de datos");
             splash.Close();
             MessageBox.Show($"No se pudo iniciar la base de datos.\n\nDetalle: {ex.Message}",
                 "Error al iniciar", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -108,7 +116,8 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"No se pudo abrir el menú principal.\n\nDetalle: {ex}",
+            ErrorLogger.Log(ex, "Apertura del menú principal");
+            MessageBox.Show($"No se pudo abrir el menú principal.\n\nDetalle: {ex.Message}",
                 "Error crítico", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown();
         }
@@ -116,14 +125,16 @@ public partial class App : Application
 
     private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
     {
+        ErrorLogger.Log(e.Exception, "Dispatcher WPF");
         MessageBox.Show(
-            "Ocurrió un problema inesperado y la operación no se completó.\n\n" +
-            "La información no se ha perdido. Puedes intentar nuevamente.\n\n" +
-            $"Detalle técnico: {e.Exception.Message}",
+            "Ocurrió un problema inesperado. La operación podría no haberse completado.\\n\\n" +
+            "El error quedó registrado localmente. Si vuelve a ocurrir, informa al responsable del sistema.\\n\\n" +
+            $"Detalle: {e.Exception.Message}",
             "Aviso",
             MessageBoxButton.OK,
             MessageBoxImage.Warning);
 
+        // Se evita cerrar la aplicación ante errores de interfaz recuperables.
         e.Handled = true;
     }
 
