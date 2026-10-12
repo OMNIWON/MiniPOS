@@ -4,7 +4,10 @@ namespace POS.Services;
 
 public interface IVentaService
 {
-    Task<Venta> ConfirmarVentaAsync(List<DetalleVenta> detalles, decimal dineroRecibido, decimal impuestos = 0);
+    Task<Venta> ConfirmarVentaAsync(List<DetalleVenta> detalles, decimal dineroRecibido,
+        MetodoPago metodoPago = MetodoPago.Efectivo, DesgloseVenta? desglose = null);
     Task<List<Venta>> ObtenerHistorialAsync();
     Task<Venta?> ObtenerDetalleAsync(int ventaId);
+    Task AnularVentaAsync(int ventaId);
+    Task<decimal> ObtenerTotalVentasHoyAsync();
 }

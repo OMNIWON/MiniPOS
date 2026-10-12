@@ -27,4 +27,5 @@ public class Producto
     public DateTime FechaModificacion { get; set; } = DateTime.Now;
 
     public bool PermiteFraccion => Unidad != UnidadMedida.Pieza;
+    public bool EnStockBajo => Existencia <= StockMinimo;
 }

@@ -13,7 +13,7 @@ public partial class LoginViewModel : ObservableObject
     private string nombreUsuario = string.Empty;
 
     [ObservableProperty]
-    private string mensaje = "Escribe tu usuario y contraseña. Si es la primera vez, se creará la cuenta automáticamente.";
+    private string mensaje = string.Empty;
 
     public Usuario? UsuarioAutenticado { get; private set; }
     public event Action? IniciarSesionExitoso;

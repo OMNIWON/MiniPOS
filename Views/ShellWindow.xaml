@@ -3,22 +3,45 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Punto de Venta" Height="750" Width="1200"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="{StaticResource ColorFondo}"
         FontFamily="Segoe UI">
 
     <Grid Margin="40">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="¿Qué deseas hacer?"
+        <Border Grid.Row="0" Style="{StaticResource TarjetaProducto}" Margin="0,0,0,20">
+            <UniformGrid Columns="4">
+                <StackPanel Margin="10">
+                    <TextBlock Text="VENTAS DE HOY" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
+                    <TextBlock Text="{Binding VentasHoy, StringFormat='{}{0:C2}'}" FontSize="26" FontWeight="Bold"
+                               Foreground="{StaticResource ColorPrimario}"/>
+                </StackPanel>
+                <StackPanel Margin="10">
+                    <TextBlock Text="PRODUCTOS CON STOCK BAJO" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
+                    <TextBlock Text="{Binding ProductosStockBajo}" FontSize="26" FontWeight="Bold"
+                               Foreground="{StaticResource ColorAviso}"/>
+                </StackPanel>
+                <Button Content="💾 Respaldar datos" Style="{StaticResource BotonNormal}"
+                        Background="{StaticResource ColorAcento}" Margin="10"
+                        Command="{Binding RespaldarCommand}"/>
+                <Button Content="⚙ Configuración" Style="{StaticResource BotonNormal}"
+                        Background="{StaticResource ColorTextoSecundario}" Margin="10"
+                        Click="AbrirConfiguracion_Click"/>
+            </UniformGrid>
+        </Border>
+
+        <TextBlock Grid.Row="1" Text="¿Qué deseas hacer?"
                    FontSize="32" FontWeight="Bold"
                    Foreground="{StaticResource ColorAcento}"
                    HorizontalAlignment="Center"
-                   Margin="0,0,0,40"/>
+                   Margin="0,0,0,30"/>
 
-        <UniformGrid Grid.Row="1" Columns="2" Rows="2">
+        <UniformGrid Grid.Row="2" Columns="2" Rows="2">
 
             <Border Style="{StaticResource TarjetaProducto}" Margin="16">
                 <Button Content="🛒&#10;VENTA" Style="{StaticResource BotonGrande}"

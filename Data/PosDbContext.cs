@@ -12,6 +12,7 @@ public class PosDbContext : DbContext
     public DbSet<Cotizacion> Cotizaciones => Set<Cotizacion>();
     public DbSet<DetalleCotizacion> DetallesCotizacion => Set<DetalleCotizacion>();
     public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<ConfiguracionNegocio> Configuraciones => Set<ConfiguracionNegocio>();
 
     public PosDbContext(DbContextOptions<PosDbContext> options) : base(options)
     {
@@ -19,6 +20,10 @@ public class PosDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Venta>()
+    .Property(v => v.TasaIva).HasColumnType("decimal(5,2)");
+        modelBuilder.Entity<ConfiguracionNegocio>()
+            .Property(c => c.TasaIva).HasColumnType("decimal(5,2)");
         modelBuilder.Entity<Producto>()
             .Property(p => p.PrecioCompra).HasColumnType("decimal(18,2)");
         modelBuilder.Entity<Producto>()

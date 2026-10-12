@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using POS.Services;
 using POS.ViewModels;
 
 namespace POS.Views;
@@ -7,10 +8,10 @@ public partial class CobroWindow : Window
 {
     public CobroViewModel ViewModel { get; }
 
-    public CobroWindow(decimal total)
+    public CobroWindow(DesgloseVenta desglose)
     {
         InitializeComponent();
-        ViewModel = new CobroViewModel(total);
+        ViewModel = new CobroViewModel(desglose);
         DataContext = ViewModel;
     }
 
@@ -18,12 +19,10 @@ public partial class CobroWindow : Window
     {
         if (!ViewModel.PuedeConfirmar) return;
         DialogResult = true;
-        Close();
     }
 
     private void Cancelar_Click(object sender, RoutedEventArgs e)
     {
         DialogResult = false;
-        Close();
     }
 }

@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Inventario" Height="750" Width="1200"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="{StaticResource ColorFondo}"
         FontFamily="Segoe UI">
 
@@ -56,7 +57,9 @@
                                             <ColumnDefinition Width="60"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="90"/>
-                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="44"/>
+                                            <ColumnDefinition Width="44"/>
                                             <ColumnDefinition Width="95"/>
                                             <ColumnDefinition Width="95"/>
                                             <ColumnDefinition Width="45"/>
@@ -79,15 +82,37 @@
                                                    Foreground="{StaticResource ColorTexto}"/>
 
                                         <TextBlock Grid.Column="3" Text="{Binding Existencia}"
-                                                   FontSize="14" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource ColorTextoSecundario}"/>
+                                                   FontSize="14" FontWeight="Bold" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{StaticResource ColorTextoSecundario}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding EnStockBajo}" Value="True">
+                                                            <Setter Property="Foreground" Value="{StaticResource ColorAviso}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
 
-                                        <Button Grid.Column="4" Content="✏ Editar" Style="{StaticResource BotonNormal}"
+                                        <Button Grid.Column="4" Content="➕" ToolTip="Entrada: llegó mercancía"
+                                                FontSize="14" Padding="4" Margin="2,0"
+                                                Style="{StaticResource BotonNormal}" Background="{StaticResource ColorExito}"
+                                                Command="{Binding DataContext.EntradaStockCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"/>
+
+                                        <Button Grid.Column="5" Content="➖" ToolTip="Salida: merma, rotura o consumo propio"
+                                                FontSize="14" Padding="4" Margin="2,0"
+                                                Style="{StaticResource BotonNormal}" Background="{StaticResource ColorAviso}"
+                                                Command="{Binding DataContext.SalidaStockCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"/>
+
+                                        <Button Grid.Column="6" Content="✏ Editar" Style="{StaticResource BotonNormal}"
                                                 FontSize="12" Padding="6,6" Margin="3,0"
                                                 Command="{Binding DataContext.EditarProductoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"/>
 
-                                        <Button Grid.Column="5" FontSize="12" Padding="6,6" Margin="3,0"
+                                        <Button Grid.Column="7" FontSize="12" Padding="6,6" Margin="3,0"
                                                 Command="{Binding DataContext.CambiarEstadoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}">
                                             <Button.Style>
@@ -104,27 +129,10 @@
                                             </Button.Style>
                                         </Button>
 
-                                        <Button Grid.Column="6" Content="🗑" FontSize="14" Padding="4"
+                                        <Button Grid.Column="8" Content="🗑" FontSize="14" Padding="4"
                                                 Style="{StaticResource BotonPeligro}"
                                                 Command="{Binding DataContext.EliminarProductoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"/>
-
-                                        <Button Grid.Column="5" FontSize="13" Padding="8,6"
-                                                Command="{Binding DataContext.CambiarEstadoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                CommandParameter="{Binding}">
-                                            <Button.Style>
-                                                <Style TargetType="Button" BasedOn="{StaticResource BotonNormal}">
-                                                    <Setter Property="Content" Value="🚫 Desactivar"/>
-                                                    <Setter Property="Background" Value="{StaticResource ColorPeligro}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Activo}" Value="False">
-                                                            <Setter Property="Content" Value="✅ Activar"/>
-                                                            <Setter Property="Background" Value="{StaticResource ColorExito}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -141,7 +149,8 @@
                         <TextBlock Text="{Binding EsNuevo, Converter={StaticResource EsNuevoATitulo}}"
                                    Style="{StaticResource TituloSeccion}"/>
 
-                        <TextBlock Text="SKU (opcional, se genera solo si lo dejas vacío)" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>                        <TextBox Style="{StaticResource CajaTexto}" Text="{Binding Sku}" Margin="0,0,0,10"/>
+                        <TextBlock Text="SKU (opcional, se genera solo si lo dejas vacío)" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
+                        <TextBox Style="{StaticResource CajaTexto}" Text="{Binding Sku}" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Nombre" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
                         <TextBox Style="{StaticResource CajaTexto}" Text="{Binding Nombre}" Margin="0,0,0,10"/>

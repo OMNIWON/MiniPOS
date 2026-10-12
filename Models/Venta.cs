@@ -7,10 +7,14 @@ public class Venta
 
     public decimal Subtotal { get; set; }
     public decimal Impuestos { get; set; }
+    public decimal TasaIva { get; set; }
     public decimal Total { get; set; }
 
     public decimal DineroRecibido { get; set; }
     public decimal Cambio { get; set; }
+
+    public MetodoPago MetodoPago { get; set; } = MetodoPago.Efectivo;
+    public string? Nota { get; set; }
 
     public List<DetalleVenta> Detalles { get; set; } = new();
 }

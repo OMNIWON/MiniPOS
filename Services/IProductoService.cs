@@ -18,4 +18,5 @@ public interface IProductoService
     Task<bool> EliminarAsync(int id);
     Task<bool> ExisteSkuAsync(string sku, int idExcluir);
     Task<string> GenerarSkuAsync(string nombre);
+    Task<int> ContarStockBajoAsync();
 }

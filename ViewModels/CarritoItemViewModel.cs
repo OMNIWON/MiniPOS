@@ -43,7 +43,7 @@ public partial class CarritoItemViewModel : ObservableObject
             decimal bruto = Cantidad * PrecioUnitario;
             decimal factor = 1 - (DescuentoPorcentaje / 100m);
             decimal neto = bruto * factor;
-            return neto < 0 ? 0 : neto;
+            return neto < 0 ? 0 : Math.Round(neto, 2, MidpointRounding.AwayFromZero);
         }
     }
 

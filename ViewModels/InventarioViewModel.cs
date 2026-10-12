@@ -1,15 +1,17 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using POS.Models;
 using POS.Services;
-using System.Collections.ObjectModel;
-using System.Windows;
+using POS.Views;
 
 namespace POS.ViewModels;
 
 public partial class InventarioViewModel : ObservableObject
 {
     private readonly IProductoService _productoService;
+    private readonly IInventarioService _inventarioService;
 
     public ObservableCollection<Producto> Productos { get; } = new();
 
@@ -21,9 +23,10 @@ public partial class InventarioViewModel : ObservableObject
     [ObservableProperty]
     private bool formularioVisible;
 
-    public InventarioViewModel(IProductoService productoService, ProductoFormViewModel formulario)
+    public InventarioViewModel(IProductoService productoService, IInventarioService inventarioService, ProductoFormViewModel formulario)
     {
         _productoService = productoService;
+        _inventarioService = inventarioService;
         Formulario = formulario;
         Formulario.GuardadoConExito += async () =>
         {
@@ -63,10 +66,7 @@ public partial class InventarioViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void CerrarFormulario()
-    {
-        FormularioVisible = false;
-    }
+    private void CerrarFormulario() => FormularioVisible = false;
 
     [RelayCommand]
     private async Task CambiarEstadoAsync(Producto producto)
@@ -99,5 +99,46 @@ public partial class InventarioViewModel : ObservableObject
         }
 
         await CargarAsync();
+    }
+
+    [RelayCommand]
+    private async Task EntradaStockAsync(Producto producto)
+    {
+        decimal? cantidad = PedirCantidad(producto, "Entrada de mercancía",
+            $"¿Cuántas unidades de \"{producto.Nombre}\" llegaron?");
+        if (cantidad is null) return;
+
+        await _inventarioService.AumentarStockAsync(producto.Id, cantidad.Value);
+        await CargarAsync();
+    }
+
+    [RelayCommand]
+    private async Task SalidaStockAsync(Producto producto)
+    {
+        decimal? cantidad = PedirCantidad(producto, "Salida de mercancía",
+            $"¿Cuántas unidades de \"{producto.Nombre}\" quieres dar de baja? (merma, rotura, consumo propio)");
+        if (cantidad is null) return;
+
+        if (cantidad.Value > producto.Existencia)
+        {
+            MessageBox.Show(
+                $"Solo hay {producto.Existencia} en existencia de \"{producto.Nombre}\". No se puede sacar más de lo que hay.",
+                "Cantidad mayor a la existencia", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        await _inventarioService.DisminuirStockAsync(producto.Id, cantidad.Value);
+        await CargarAsync();
+    }
+
+    private static decimal? PedirCantidad(Producto producto, string titulo, string pregunta)
+    {
+        var ventana = new CantidadWindow(titulo, pregunta, producto.PermiteFraccion);
+
+        var activa = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive);
+        if (activa is not null)
+            ventana.Owner = activa;
+
+        return ventana.ShowDialog() == true ? ventana.Cantidad : null;
     }
 }

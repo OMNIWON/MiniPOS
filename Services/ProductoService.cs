@@ -158,4 +158,14 @@ public class ProductoService : IProductoService
 
         return sku;
     }
+    public async Task<int> ContarStockBajoAsync()
+    {
+        var datos = await _context.Productos
+            .AsNoTracking()
+            .Where(p => p.Activo)
+            .Select(p => new { p.Existencia, p.StockMinimo })
+            .ToListAsync();
+
+        return datos.Count(p => p.Existencia <= p.StockMinimo);
+    }
 }

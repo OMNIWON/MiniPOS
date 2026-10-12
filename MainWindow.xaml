@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Punto de Venta" Height="750" Width="1200"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="{StaticResource ColorFondo}"
         FontFamily="Segoe UI">
 
@@ -12,22 +13,15 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Título -->
         <Grid Grid.Row="0" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-
-            <TextBlock Grid.Column="0" Text="PUNTO DE VENTA"
-                       FontSize="28" FontWeight="Bold"
-                       Foreground="{StaticResource ColorAcento}"
-                       VerticalAlignment="Center"/>
-
-            <Button Grid.Column="1" Content="⬅ Regresar al menú"
-                    Style="{StaticResource BotonNormal}"
-                    Background="{StaticResource ColorTextoSecundario}"
-                    Click="RegresarAlMenu_Click"/>
+            <TextBlock Grid.Column="0" Text="PUNTO DE VENTA" FontSize="28" FontWeight="Bold"
+                       Foreground="{StaticResource ColorAcento}" VerticalAlignment="Center"/>
+            <Button Grid.Column="1" Content="⬅ Regresar al menú" Style="{StaticResource BotonNormal}"
+                    Background="{StaticResource ColorTextoSecundario}" Click="RegresarAlMenu_Click"/>
         </Grid>
 
         <Grid Grid.Row="1">
@@ -37,7 +31,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- COLUMNA IZQUIERDA: BUSCAR PRODUCTO -->
+            <!-- IZQUIERDA: BUSCAR PRODUCTO -->
             <Border Grid.Column="0" Style="{StaticResource TarjetaProducto}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -47,7 +41,6 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" Text="Buscar producto" Style="{StaticResource TituloSeccion}"/>
-
                     <TextBox Grid.Row="1" Style="{StaticResource CajaTexto}"
                              Text="{Binding TextoBusqueda, UpdateSourceTrigger=PropertyChanged}"
                              Margin="0,0,0,12"/>
@@ -87,7 +80,7 @@
                 </Grid>
             </Border>
 
-            <!-- COLUMNA DERECHA: CARRITO -->
+            <!-- DERECHA: CARRITO -->
             <Border Grid.Column="2" Style="{StaticResource TarjetaProducto}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -104,11 +97,9 @@
                         <ItemsControl ItemsSource="{Binding Carrito}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{StaticResource ColorBorde}" BorderThickness="0,0,0,1"
-                                            Padding="0,10">
+                                    <Border BorderBrush="{StaticResource ColorBorde}" BorderThickness="0,0,0,1" Padding="0,10">
                                         <StackPanel>
-                                            <TextBlock Text="{Binding Producto.Nombre}"
-                                                       FontSize="16" FontWeight="SemiBold"
+                                            <TextBlock Text="{Binding Producto.Nombre}" FontSize="16" FontWeight="SemiBold"
                                                        Foreground="{StaticResource ColorTexto}"/>
                                             <Grid Margin="0,6,0,0">
                                                 <Grid.ColumnDefinitions>
@@ -138,7 +129,7 @@
                                                 <TextBox Grid.Column="3" Text="{Binding PrecioUnitario, UpdateSourceTrigger=LostFocus, StringFormat=N2}"
                                                          FontSize="14" VerticalAlignment="Center" Margin="6,0,3,0"
                                                          TextAlignment="Right" Padding="3"
-                                                         ToolTip="Precio unitario (editable solo aquí)"/>
+                                                         ToolTip="Precio unitario (editable solo en esta venta)"/>
 
                                                 <TextBox Grid.Column="4" Text="{Binding DescuentoPorcentaje, UpdateSourceTrigger=LostFocus, StringFormat=N0}"
                                                          FontSize="14" VerticalAlignment="Center" Margin="3,0"
@@ -154,7 +145,7 @@
                                                         Command="{Binding DataContext.QuitarDelCarritoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         CommandParameter="{Binding}"/>
                                             </Grid>
-                                            <TextBlock Text="Cant. | Precio | Descuento %" FontSize="14"
+                                            <TextBlock Text="Cant. | Precio | Descuento %" FontSize="11"
                                                        Foreground="{StaticResource ColorTextoSecundario}" Margin="0,2,0,0"/>
                                         </StackPanel>
                                     </Border>
@@ -166,17 +157,25 @@
                     <TextBlock Grid.Row="2" Text="{Binding MensajeError}" Style="{StaticResource MensajeError}"
                                Visibility="{Binding MensajeError, Converter={StaticResource NuloAColapsado}}"/>
 
-                    <Grid Grid.Row="3" Margin="0,16,0,16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="TOTAL" FontSize="20" VerticalAlignment="Center"
-                                   Foreground="{StaticResource ColorTextoSecundario}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Total, StringFormat='{}{0:C2}'}"
-                                   Style="{StaticResource TextoTotal}"
-                                   Foreground="{StaticResource ColorPrimario}"/>
-                    </Grid>
+                    <StackPanel Grid.Row="3" Margin="0,16,0,16">
+                        <Grid Margin="0,0,0,4" Visibility="{Binding MuestraIva, Converter={StaticResource BoolAVisible}}">
+                            <TextBlock Text="Subtotal" FontSize="16" Foreground="{StaticResource ColorTextoSecundario}"/>
+                            <TextBlock Text="{Binding Subtotal, StringFormat='{}{0:C2}'}" FontSize="18"
+                                       HorizontalAlignment="Right" Foreground="{StaticResource ColorTexto}"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,8" Visibility="{Binding MuestraIva, Converter={StaticResource BoolAVisible}}">
+                            <TextBlock Text="{Binding EtiquetaIva}" FontSize="16" Foreground="{StaticResource ColorTextoSecundario}"/>
+                            <TextBlock Text="{Binding Impuestos, StringFormat='{}{0:C2}'}" FontSize="18"
+                                       HorizontalAlignment="Right" Foreground="{StaticResource ColorTexto}"/>
+                        </Grid>
+                        <Grid>
+                            <TextBlock Text="TOTAL" FontSize="20" VerticalAlignment="Center"
+                                       Foreground="{StaticResource ColorTextoSecundario}"/>
+                            <TextBlock Text="{Binding Total, StringFormat='{}{0:C2}'}"
+                                       Style="{StaticResource TextoTotal}" HorizontalAlignment="Right"
+                                       Foreground="{StaticResource ColorPrimario}"/>
+                        </Grid>
+                    </StackPanel>
 
                     <Button Grid.Row="4" Content="💰 COBRAR" Style="{StaticResource BotonGrande}"
                             HorizontalAlignment="Stretch" Click="Cobrar_Click"/>

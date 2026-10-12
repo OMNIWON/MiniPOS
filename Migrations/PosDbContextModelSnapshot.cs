@@ -32,6 +32,42 @@ namespace POS.Migrations
                     b.ToTable("Categorias");
                 });
 
+            modelBuilder.Entity("POS.Models.ConfiguracionNegocio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AnchoTicketMm")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Direccion")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IvaActivo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("MensajeTicket")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NombreNegocio")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("PreciosIncluyenIva")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("TasaIva")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Telefono")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Configuraciones");
+                });
+
             modelBuilder.Entity("POS.Models.Cotizacion", b =>
                 {
                     b.Property<int>("Id")
@@ -223,8 +259,17 @@ namespace POS.Migrations
                     b.Property<decimal>("Impuestos")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("MetodoPago")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Nota")
+                        .HasColumnType("TEXT");
+
                     b.Property<decimal>("Subtotal")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TasaIva")
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)");

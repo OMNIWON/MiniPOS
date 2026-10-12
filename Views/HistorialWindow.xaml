@@ -129,9 +129,22 @@
                             </ItemsControl>
                             <Separator Margin="0,10"/>
                             <TextBlock Text="{Binding VentaSeleccionada.Subtotal, StringFormat='Subtotal: {0:C2}'}" FontSize="14"/>
-                            <TextBlock Text="{Binding VentaSeleccionada.Total, StringFormat='Total: {0:C2}'}" FontSize="18" FontWeight="Bold" Margin="0,4,0,0"/>
+                            <TextBlock Text="{Binding VentaSeleccionada.Impuestos, StringFormat='IVA: {0:C2}'}" FontSize="14"/>                            <TextBlock Text="{Binding VentaSeleccionada.Total, StringFormat='Total: {0:C2}'}" FontSize="18" FontWeight="Bold" Margin="0,4,0,0"/>
                             <TextBlock Text="{Binding VentaSeleccionada.DineroRecibido, StringFormat='Recibido: {0:C2}'}" FontSize="14" Margin="0,8,0,0"/>
                             <TextBlock Text="{Binding VentaSeleccionada.Cambio, StringFormat='Cambio: {0:C2}'}" FontSize="14"/>
+                            <TextBlock Text="{Binding VentaSeleccionada.MetodoPago, StringFormat='Pago: {0}'}" FontSize="14" Margin="0,8,0,0"/>
+
+                            <Button Content="🖨 Imprimir ticket" Style="{StaticResource BotonNormal}" Margin="0,12,0,0"
+                                    Command="{Binding ImprimirTicketCommand}"
+                                    CommandParameter="{Binding VentaSeleccionada}"/>
+                            <TextBlock Text="Nota" FontSize="12" Foreground="{StaticResource ColorTextoSecundario}" Margin="0,12,0,2"/>
+                            <TextBox Style="{StaticResource CajaTexto}" FontSize="14"
+                                     Text="{Binding VentaSeleccionada.Nota, UpdateSourceTrigger=LostFocus}"/>
+
+                            <Button Content="🗑 Anular esta venta" Style="{StaticResource BotonPeligro}"
+                                    Margin="0,16,0,0"
+                                    Command="{Binding AnularVentaCommand}"
+                                    CommandParameter="{Binding VentaSeleccionada}"/>
                         </StackPanel>
 
                         <StackPanel Visibility="{Binding CotizacionSeleccionada, Converter={StaticResource NuloAColapsadoObjeto}}">
@@ -158,6 +171,15 @@
                             </ItemsControl>
                             <Separator Margin="0,10"/>
                             <TextBlock Text="{Binding CotizacionSeleccionada.Total, StringFormat='Total: {0:C2}'}" FontSize="18" FontWeight="Bold"/>
+
+                            <TextBlock Text="Nota" FontSize="12" Foreground="{StaticResource ColorTextoSecundario}" Margin="0,12,0,2"/>
+                            <TextBox Style="{StaticResource CajaTexto}" FontSize="14"
+                                     Text="{Binding CotizacionSeleccionada.Nota, UpdateSourceTrigger=LostFocus}"/>
+
+                            <Button Content="🗑 Eliminar cotización" Style="{StaticResource BotonPeligro}"
+                                    Margin="0,16,0,0"
+                                    Command="{Binding EliminarCotizacionCommand}"
+                                    CommandParameter="{Binding CotizacionSeleccionada}"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>

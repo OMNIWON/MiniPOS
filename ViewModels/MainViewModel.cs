@@ -11,23 +11,26 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly IProductoService _productoService;
     private readonly IVentaService _ventaService;
+    private readonly IConfiguracionService _configuracion;
 
     public ObservableCollection<Producto> ProductosEncontrados { get; } = new();
     public ObservableCollection<CarritoItemViewModel> Carrito { get; } = new();
 
-    [ObservableProperty]
-    private string textoBusqueda = string.Empty;
+    [ObservableProperty] private string textoBusqueda = string.Empty;
+    [ObservableProperty] private decimal subtotal;
+    [ObservableProperty] private decimal impuestos;
+    [ObservableProperty] private decimal total;
+    [ObservableProperty] private string? mensajeError;
 
-    [ObservableProperty]
-    private decimal total;
+    public bool MuestraIva => _configuracion.Actual.IvaActivo;
+    public string EtiquetaIva => $"IVA ({_configuracion.Actual.TasaIva:0.##}%)";
+    public DesgloseVenta DesgloseActual { get; private set; } = new(0m, 0m, 0m, 0m);
 
-    [ObservableProperty]
-    private string? mensajeError;
-
-    public MainViewModel(IProductoService productoService, IVentaService ventaService)
+    public MainViewModel(IProductoService productoService, IVentaService ventaService, IConfiguracionService configuracion)
     {
         _productoService = productoService;
         _ventaService = ventaService;
+        _configuracion = configuracion;
         Carrito.CollectionChanged += Carrito_CollectionChanged;
         _ = CargarProductosAsync();
     }
@@ -86,16 +89,10 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void IncrementarCantidad(CarritoItemViewModel item)
-    {
-        CambiarCantidad(item, item.Cantidad + 1m);
-    }
+    private void IncrementarCantidad(CarritoItemViewModel item) => CambiarCantidad(item, item.Cantidad + 1m);
 
     [RelayCommand]
-    private void DecrementarCantidad(CarritoItemViewModel item)
-    {
-        CambiarCantidad(item, item.Cantidad - 1m);
-    }
+    private void DecrementarCantidad(CarritoItemViewModel item) => CambiarCantidad(item, item.Cantidad - 1m);
 
     [RelayCommand]
     private void QuitarDelCarrito(CarritoItemViewModel item)
@@ -138,7 +135,18 @@ public partial class MainViewModel : ObservableObject
             ? $"Aviso: solo hay {item.Producto.Existencia} {UnidadTexto(item.Producto)} de {item.Producto.Nombre} en inventario. Se venderá bajo pedido."
             : null;
     }
-    public async Task<Venta> ConfirmarVentaAsync(decimal dineroRecibido)
+
+    private void RecalcularTotal()
+    {
+        decimal suma = Carrito.Sum(c => c.Subtotal);
+        DesgloseActual = CalculoImpuestos.Calcular(suma, _configuracion.Actual);
+
+        Subtotal = DesgloseActual.Subtotal;
+        Impuestos = DesgloseActual.Impuestos;
+        Total = DesgloseActual.Total;
+    }
+
+    public async Task<Venta> ConfirmarVentaAsync(decimal dineroRecibido, MetodoPago metodoPago)
     {
         var detalles = Carrito.Select(c => new DetalleVenta
         {
@@ -150,18 +158,13 @@ public partial class MainViewModel : ObservableObject
             Subtotal = c.Subtotal
         }).ToList();
 
-        var venta = await _ventaService.ConfirmarVentaAsync(detalles, dineroRecibido);
+        var venta = await _ventaService.ConfirmarVentaAsync(detalles, dineroRecibido, metodoPago, DesgloseActual);
 
         Carrito.Clear();
         MensajeError = null;
         await CargarProductosAsync();
 
         return venta;
-    }
-
-    private void RecalcularTotal()
-    {
-        Total = Carrito.Sum(c => c.Subtotal);
     }
 
     private static string UnidadTexto(Producto producto) => producto.Unidad switch

@@ -1,22 +1,33 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using POS.Models;
+using POS.Services;
 
 namespace POS.ViewModels;
 
 public partial class CobroViewModel : ObservableObject
 {
+    public decimal Subtotal { get; }
+    public decimal Impuestos { get; }
     public decimal Total { get; }
+    public bool MuestraDesglose => Impuestos > 0;
 
     [ObservableProperty]
     private decimal dineroRecibido;
 
-    public decimal Cambio => DineroRecibido > Total ? DineroRecibido - Total : 0;
+    [ObservableProperty]
+    private MetodoPago metodoSeleccionado = MetodoPago.Efectivo;
 
-    public bool PuedeConfirmar => DineroRecibido >= Total;
+    public bool EsEfectivo => MetodoSeleccionado == MetodoPago.Efectivo;
+    public bool EsTarjeta => MetodoSeleccionado == MetodoPago.Tarjeta;
+    public decimal Cambio => EsEfectivo && DineroRecibido > Total ? DineroRecibido - Total : 0;
+    public bool PuedeConfirmar => EsTarjeta || DineroRecibido >= Total;
 
-    public CobroViewModel(decimal total)
+    public CobroViewModel(DesgloseVenta desglose)
     {
-        Total = total;
+        Subtotal = desglose.Subtotal;
+        Impuestos = desglose.Impuestos;
+        Total = desglose.Total;
     }
 
     partial void OnDineroRecibidoChanged(decimal value)
@@ -24,6 +35,21 @@ public partial class CobroViewModel : ObservableObject
         OnPropertyChanged(nameof(Cambio));
         OnPropertyChanged(nameof(PuedeConfirmar));
     }
+
+    partial void OnMetodoSeleccionadoChanged(MetodoPago value)
+    {
+        DineroRecibido = value == MetodoPago.Tarjeta ? Total : 0;
+        OnPropertyChanged(nameof(EsEfectivo));
+        OnPropertyChanged(nameof(EsTarjeta));
+        OnPropertyChanged(nameof(Cambio));
+        OnPropertyChanged(nameof(PuedeConfirmar));
+    }
+
+    [RelayCommand]
+    private void SeleccionarEfectivo() => MetodoSeleccionado = MetodoPago.Efectivo;
+
+    [RelayCommand]
+    private void SeleccionarTarjeta() => MetodoSeleccionado = MetodoPago.Tarjeta;
 
     [RelayCommand]
     private void AgregarMonto(string montoTexto)
@@ -33,14 +59,8 @@ public partial class CobroViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void PagoExacto()
-    {
-        DineroRecibido = Total;
-    }
+    private void PagoExacto() => DineroRecibido = Total;
 
     [RelayCommand]
-    private void LimpiarMonto()
-    {
-        DineroRecibido = 0;
-    }
+    private void LimpiarMonto() => DineroRecibido = 0;
 }

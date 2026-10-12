@@ -44,4 +44,12 @@ public class CotizacionService : ICotizacionService
             .Include(c => c.Detalles)
             .FirstOrDefaultAsync(c => c.Id == cotizacionId);
     }
+    public async Task EliminarAsync(int cotizacionId)
+    {
+        var cotizacion = await _context.Cotizaciones.FindAsync(cotizacionId);
+        if (cotizacion is null) return;
+
+        _context.Cotizaciones.Remove(cotizacion);
+        await _context.SaveChangesAsync();
+    }
 }

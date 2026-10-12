@@ -15,25 +15,28 @@ public class VentaService : IVentaService
         _inventario = inventario;
     }
 
-    public async Task<Venta> ConfirmarVentaAsync(List<DetalleVenta> detalles, decimal dineroRecibido, decimal impuestos = 0)
+    public async Task<Venta> ConfirmarVentaAsync(List<DetalleVenta> detalles, decimal dineroRecibido,
+        MetodoPago metodoPago = MetodoPago.Efectivo, DesgloseVenta? desglose = null)
     {
         using var transaccion = await _context.Database.BeginTransactionAsync();
         try
         {
-            decimal subtotal = detalles.Sum(d => d.Subtotal);
-            decimal total = subtotal + impuestos;
+            decimal suma = detalles.Sum(d => d.Subtotal);
+            var calculo = desglose ?? new DesgloseVenta(suma, 0m, suma, 0m);
 
-            if (dineroRecibido < total)
+            if (dineroRecibido < calculo.Total)
                 throw new InvalidOperationException("El dinero recibido es menor al total.");
 
             var venta = new Venta
             {
                 Fecha = DateTime.Now,
-                Subtotal = subtotal,
-                Impuestos = impuestos,
-                Total = total,
+                Subtotal = calculo.Subtotal,
+                Impuestos = calculo.Impuestos,
+                TasaIva = calculo.TasaIva,
+                Total = calculo.Total,
                 DineroRecibido = dineroRecibido,
-                Cambio = dineroRecibido - total,
+                Cambio = dineroRecibido - calculo.Total,
+                MetodoPago = metodoPago,
                 Detalles = detalles
             };
 
@@ -41,7 +44,7 @@ public class VentaService : IVentaService
             {
                 bool ok = await _inventario.DisminuirStockAsync(detalle.ProductoId, detalle.Cantidad);
                 if (!ok)
-                    throw new InvalidOperationException($"No hay stock suficiente de {detalle.NombreProducto}.");
+                    throw new InvalidOperationException($"No se pudo descontar el inventario de {detalle.NombreProducto}.");
             }
 
             _context.Ventas.Add(venta);
@@ -49,6 +52,35 @@ public class VentaService : IVentaService
 
             await transaccion.CommitAsync();
             return venta;
+        }
+        catch
+        {
+            await transaccion.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task AnularVentaAsync(int ventaId)
+    {
+        using var transaccion = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var venta = await _context.Ventas
+                .Include(v => v.Detalles)
+                .FirstOrDefaultAsync(v => v.Id == ventaId);
+
+            if (venta is null)
+                throw new InvalidOperationException("La venta no existe.");
+
+            foreach (var detalle in venta.Detalles)
+            {
+                await _inventario.AumentarStockAsync(detalle.ProductoId, detalle.Cantidad);
+            }
+
+            _context.Ventas.Remove(venta);
+            await _context.SaveChangesAsync();
+
+            await transaccion.CommitAsync();
         }
         catch
         {
@@ -72,5 +104,19 @@ public class VentaService : IVentaService
             .AsNoTracking()
             .Include(v => v.Detalles)
             .FirstOrDefaultAsync(v => v.Id == ventaId);
+    }
+
+    public async Task<decimal> ObtenerTotalVentasHoyAsync()
+    {
+        var hoy = DateTime.Today;
+        var manana = hoy.AddDays(1);
+
+        var totales = await _context.Ventas
+            .AsNoTracking()
+            .Where(v => v.Fecha >= hoy && v.Fecha < manana)
+            .Select(v => v.Total)
+            .ToListAsync();
+
+        return totales.Sum();
     }
 }
