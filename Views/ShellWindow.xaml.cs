@@ -56,7 +56,7 @@ public partial class ShellWindow : Window
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"No se pudo cargar la cotización en ventas.\\n\\nDetalle: {ex.Message}", "Error al crear venta", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"No se pudo cargar la cotización en ventas.\n\nDetalle: {ex.Message}", "Error al crear venta", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
