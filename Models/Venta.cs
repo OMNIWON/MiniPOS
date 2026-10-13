@@ -15,6 +15,7 @@ public class Venta
 
     public MetodoPago MetodoPago { get; set; } = MetodoPago.Efectivo;
     public string? Nota { get; set; }
-
+    public string? Nota1 { get; set; }
+    public string? Nota2 { get; set; }
     public List<DetalleVenta> Detalles { get; set; } = new();
 }

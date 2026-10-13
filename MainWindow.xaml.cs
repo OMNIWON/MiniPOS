@@ -18,6 +18,7 @@ public partial class MainWindow : Window
         _ticketService = ticketService;
         DataContext = viewModel;
     }
+    public Task<List<string>> CargarCotizacionAsync(Cotizacion cotizacion) => _viewModel.CargarCotizacionAsync(cotizacion);
 
     private void RegresarAlMenu_Click(object sender, RoutedEventArgs e)
     {
@@ -45,6 +46,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
+            ErrorLogger.Log(ex, "Confirmar venta");
             MessageBox.Show(
                 $"No se pudo completar la venta.\n\nLa información no se ha perdido. Intenta nuevamente.\n\nDetalle: {ex.Message}",
                 "Error al guardar", MessageBoxButton.OK, MessageBoxImage.Warning);

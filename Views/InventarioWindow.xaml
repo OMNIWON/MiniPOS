@@ -157,8 +157,7 @@
 
                         <TextBlock Text="Descripción" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
                         <TextBox Style="{StaticResource CajaTexto}" Text="{Binding Descripcion}" Margin="0,0,0,10"
-                                 TextWrapping="Wrap" AcceptsReturn="True" Height="60"/>
-
+                                 TextWrapping="Wrap" AcceptsReturn="True" Height="60" VerticalContentAlignment="Top"/>
                         <TextBlock Text="Categoría" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
                         <ComboBox ItemsSource="{Binding Categorias}" DisplayMemberPath="Nombre"
                                   SelectedItem="{Binding CategoriaSeleccionada}"

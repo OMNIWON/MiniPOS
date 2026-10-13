@@ -44,6 +44,16 @@ public class CotizacionService : ICotizacionService
             .Include(c => c.Detalles)
             .FirstOrDefaultAsync(c => c.Id == cotizacionId);
     }
+    public async Task GuardarNotasAsync(int cotizacionId, string? nota1, string? nota2)
+    {
+        var cotizacion = await _context.Cotizaciones.FirstOrDefaultAsync(c => c.Id == cotizacionId);
+        if (cotizacion is null)
+            throw new InvalidOperationException("La cotización ya no existe en el historial.");
+
+        cotizacion.Nota1 = nota1;
+        cotizacion.Nota2 = nota2;
+        await _context.SaveChangesAsync();
+    }
     public async Task EliminarAsync(int cotizacionId)
     {
         var cotizacion = await _context.Cotizaciones.FindAsync(cotizacionId);

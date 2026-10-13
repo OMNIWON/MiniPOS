@@ -1,132 +1,214 @@
 ﻿<Window x:Class="POS.Views.CobroWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Cobro" Height="750" Width="650"
+        Title="Cobro" Height="720" Width="1100" MinHeight="660" MinWidth="900"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
         Background="{StaticResource ColorFondo}"
         FontFamily="Segoe UI">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid MaxWidth="600" Margin="24" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+    <Window.Resources>
+        <!-- Paleta local de Cobro: azul noche, superficies oscuras y naranja de acción -->
+        <SolidColorBrush x:Key="ColorFondo" Color="#0B1220"/>
+        <SolidColorBrush x:Key="ColorSuperficie" Color="#111C2E"/>
+        <SolidColorBrush x:Key="ColorBorde" Color="#2A3A50"/>
+        <SolidColorBrush x:Key="ColorPrimario" Color="#4DA3FF"/>
+        <SolidColorBrush x:Key="ColorAcento" Color="#F97316"/>
+        <SolidColorBrush x:Key="ColorTexto" Color="#F1F5F9"/>
+        <SolidColorBrush x:Key="ColorTextoSecundario" Color="#A8B6C8"/>
+        <SolidColorBrush x:Key="ColorExito" Color="#34D399"/>
+        <SolidColorBrush x:Key="ColorPeligro" Color="#EF4444"/>
 
-            <TextBlock Grid.Row="0" Text="COBRO" FontSize="30" FontWeight="Bold"
-                       Foreground="{StaticResource ColorAcento}" Margin="0,0,0,16"/>
+        <Style x:Key="TarjetaCobro" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource ColorSuperficie}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ColorBorde}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="22"/>
+            <Setter Property="Margin" Value="5,0,5,18"/>
+        </Style>
 
-            <Border Grid.Row="1" Style="{StaticResource TarjetaProducto}" Margin="0,0,0,16">
-                <StackPanel>
-                    <Grid Margin="0,0,0,6" Visibility="{Binding MuestraDesglose, Converter={StaticResource BoolAVisible}}">
-                        <TextBlock Text="Subtotal" FontSize="16" Foreground="{StaticResource ColorTextoSecundario}"/>
-                        <TextBlock Text="{Binding Subtotal, StringFormat='{}{0:C2}'}" FontSize="18"
-                                   HorizontalAlignment="Right" Foreground="{StaticResource ColorTexto}"/>
-                    </Grid>
-                    <Grid Margin="0,0,0,6" Visibility="{Binding MuestraDesglose, Converter={StaticResource BoolAVisible}}">
-                        <TextBlock Text="IVA" FontSize="16" Foreground="{StaticResource ColorTextoSecundario}"/>
-                        <TextBlock Text="{Binding Impuestos, StringFormat='{}{0:C2}'}" FontSize="18"
-                                   HorizontalAlignment="Right" Foreground="{StaticResource ColorTexto}"/>
-                    </Grid>
-                    <Grid Margin="0,0,0,10">
-                        <TextBlock Text="TOTAL" FontSize="18" Foreground="{StaticResource ColorTextoSecundario}"/>
-                        <TextBlock Text="{Binding Total, StringFormat='{}{0:C2}'}" FontSize="28" FontWeight="Bold"
-                                   HorizontalAlignment="Right" Foreground="{StaticResource ColorTexto}"/>
-                    </Grid>
-                    <Grid Margin="0,0,0,10">
-                        <TextBlock Text="RECIBIDO" FontSize="18" Foreground="{StaticResource ColorTextoSecundario}"/>
-                        <TextBlock Text="{Binding DineroRecibido, StringFormat='{}{0:C2}'}" FontSize="28" FontWeight="Bold"
-                                   HorizontalAlignment="Right" Foreground="{StaticResource ColorPrimario}"/>
-                    </Grid>
-                    <Separator Margin="0,6"/>
-                    <Grid Margin="0,10,0,0">
-                        <TextBlock Text="CAMBIO" FontSize="22" FontWeight="Bold" Foreground="{StaticResource ColorTextoSecundario}"/>
-                        <TextBlock Text="{Binding Cambio, StringFormat='{}{0:C2}'}" FontSize="38" FontWeight="Bold"
-                                   HorizontalAlignment="Right" Foreground="{StaticResource ColorExito}"/>
-                    </Grid>
-                </StackPanel>
-            </Border>
+        <!-- Botón del teclado de billetes: todos iguales y se estiran para llenar su celda -->
+        <Style x:Key="BotonTeclado" TargetType="Button" BasedOn="{StaticResource BotonNormal}">
+            <Setter Property="Background" Value="#19283D"/>
+            <Setter Property="Foreground" Value="{StaticResource ColorTexto}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ColorBorde}"/>
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Height" Value="Auto"/>
+            <Setter Property="MinHeight" Value="56"/>
+        </Style>
 
-            <UniformGrid Grid.Row="2" Columns="2" Margin="0,0,0,12">
-                <Button Content="💵 Efectivo" FontSize="20" Margin="4" Command="{Binding SeleccionarEfectivoCommand}">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource BotonNormal}">
-                            <Setter Property="Background" Value="{StaticResource ColorBorde}"/>
-                            <Setter Property="Foreground" Value="{StaticResource ColorTexto}"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding EsEfectivo}" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource ColorAcento}"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-                <Button Content="💳 Tarjeta" FontSize="20" Margin="4" Command="{Binding SeleccionarTarjetaCommand}">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource BotonNormal}">
-                            <Setter Property="Background" Value="{StaticResource ColorBorde}"/>
-                            <Setter Property="Foreground" Value="{StaticResource ColorTexto}"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding EsTarjeta}" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource ColorAcento}"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-            </UniformGrid>
+        <!-- Base de los botones Efectivo / Tarjeta -->
+        <Style x:Key="BotonMetodo" TargetType="Button" BasedOn="{StaticResource BotonNormal}">
+            <Setter Property="Background" Value="#19283D"/>
+            <Setter Property="Foreground" Value="{StaticResource ColorTexto}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ColorBorde}"/>
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Height" Value="68"/>
+            <Setter Property="Background" Value="{StaticResource ColorBorde}"/>
+            <Setter Property="Foreground" Value="{StaticResource ColorTexto}"/>
+        </Style>
 
-            <StackPanel Grid.Row="3" Margin="0,0,0,12"
-                        Visibility="{Binding EsEfectivo, Converter={StaticResource BoolAVisible}}">
-                <TextBox Style="{StaticResource CajaTexto}" FontSize="26" TextAlignment="Center"
-                         Text="{Binding DineroRecibido, UpdateSourceTrigger=LostFocus, StringFormat=N2}"
-                         Margin="0,0,0,12"/>
+        <Style x:Key="BotonMetodoEfectivo" TargetType="Button" BasedOn="{StaticResource BotonMetodo}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding EsEfectivo}" Value="True">
+                    <Setter Property="Background" Value="{StaticResource ColorAcento}"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
-                <UniformGrid Columns="3" Rows="3">
-                    <Button Content="$5" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
-                            Command="{Binding AgregarMontoCommand}" CommandParameter="5"/>
-                    <Button Content="$10" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
-                            Command="{Binding AgregarMontoCommand}" CommandParameter="10"/>
-                    <Button Content="$20" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
-                            Command="{Binding AgregarMontoCommand}" CommandParameter="20"/>
-                    <Button Content="$50" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
-                            Command="{Binding AgregarMontoCommand}" CommandParameter="50"/>
-                    <Button Content="$100" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
-                            Command="{Binding AgregarMontoCommand}" CommandParameter="100"/>
-                    <Button Content="$200" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
-                            Command="{Binding AgregarMontoCommand}" CommandParameter="200"/>
-                    <Button Content="$500" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
-                            Command="{Binding AgregarMontoCommand}" CommandParameter="500"/>
-                    <Button Content="$1000" Style="{StaticResource BotonNormal}" FontSize="20" Margin="4"
-                            Command="{Binding AgregarMontoCommand}" CommandParameter="1000"/>
-                    <Button Content="Limpiar" Style="{StaticResource BotonPeligro}" FontSize="18" Margin="4"
-                            Command="{Binding LimpiarMontoCommand}"/>
-                </UniformGrid>
+        <Style x:Key="BotonMetodoTarjeta" TargetType="Button" BasedOn="{StaticResource BotonMetodo}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding EsTarjeta}" Value="True">
+                    <Setter Property="Background" Value="{StaticResource ColorAcento}"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
 
-                <Button Content="PAGO EXACTO" Style="{StaticResource BotonNormal}"
-                        Background="{StaticResource ColorAcento}" FontSize="20" Margin="4,8,4,0"
-                        Command="{Binding PagoExactoCommand}"/>
-            </StackPanel>
+    <!-- Contenedor centrado con ancho máximo para que no se estire de más en pantallas grandes -->
+    <Grid MaxWidth="1100" Margin="32,20,32,28" HorizontalAlignment="Center" Background="{StaticResource ColorFondo}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="3" Text="Cobra en la terminal y luego presiona CONFIRMAR VENTA."
-                       FontSize="16" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,12"
-                       Foreground="{StaticResource ColorTextoSecundario}"
-                       Visibility="{Binding EsTarjeta, Converter={StaticResource BoolAVisible}}"/>
+        <TextBlock Grid.Row="0" Text="COBRO" FontSize="32" FontWeight="Bold"
+                   Foreground="{StaticResource ColorAcento}" Margin="5,0,0,18"/>
 
-            <StackPanel Grid.Row="4">
-                <Button Content="✅ CONFIRMAR VENTA" Style="{StaticResource BotonGrande}"
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="28"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ============ COLUMNA IZQUIERDA: resumen + confirmar ============ -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource TarjetaCobro}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8" Visibility="{Binding MuestraDesglose, Converter={StaticResource BoolAVisible}}">
+                            <TextBlock Text="Subtotal" FontSize="16" Foreground="{StaticResource ColorTextoSecundario}"/>
+                            <TextBlock Text="{Binding Subtotal, StringFormat='{}{0:C2}'}" FontSize="18"
+                                       HorizontalAlignment="Right" Foreground="{StaticResource ColorTexto}"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,8" Visibility="{Binding MuestraDesglose, Converter={StaticResource BoolAVisible}}">
+                            <TextBlock Text="IVA" FontSize="16" Foreground="{StaticResource ColorTextoSecundario}"/>
+                            <TextBlock Text="{Binding Impuestos, StringFormat='{}{0:C2}'}" FontSize="18"
+                                       HorizontalAlignment="Right" Foreground="{StaticResource ColorTexto}"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,14">
+                            <TextBlock Text="TOTAL" FontSize="18" VerticalAlignment="Center"
+                                       Foreground="{StaticResource ColorTextoSecundario}"/>
+                            <TextBlock Text="{Binding Total, StringFormat='{}{0:C2}'}" FontSize="30" FontWeight="Bold"
+                                       HorizontalAlignment="Right" Foreground="{StaticResource ColorTexto}"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,14">
+                            <TextBlock Text="RECIBIDO" FontSize="18" VerticalAlignment="Center"
+                                       Foreground="{StaticResource ColorTextoSecundario}"/>
+                            <TextBlock Text="{Binding DineroRecibido, StringFormat='{}{0:C2}'}" FontSize="30" FontWeight="Bold"
+                                       HorizontalAlignment="Right" Foreground="{StaticResource ColorPrimario}"/>
+                        </Grid>
+                        <Separator Margin="0,4,0,12"/>
+                        <Grid>
+                            <TextBlock Text="CAMBIO" FontSize="22" FontWeight="Bold" VerticalAlignment="Center"
+                                       Foreground="{StaticResource ColorTextoSecundario}"/>
+                            <TextBlock Text="{Binding Cambio, StringFormat='{}{0:C2}'}" FontSize="42" FontWeight="Bold"
+                                       HorizontalAlignment="Right" Foreground="{StaticResource ColorExito}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Button Grid.Row="2" Content="CONFIRMAR VENTA" Style="{StaticResource BotonGrande}"
+                        Background="{StaticResource ColorAcento}" Foreground="#111827"
+                        BorderBrush="{StaticResource ColorAcento}"
+                        FontWeight="Bold" Height="90" Margin="5,0,5,0"
                         IsEnabled="{Binding PuedeConfirmar}" Click="Confirmar_Click"/>
 
-                <Button Content="Cancelar" Style="{StaticResource BotonNormal}"
-                        Background="{StaticResource ColorTextoSecundario}" Margin="0,10,0,0"
+                <Button Grid.Row="3" Content="Cancelar" Style="{StaticResource BotonNormal}"
+                        Height="60" FontSize="20" Margin="5,12,5,0"
+                        Background="{StaticResource ColorBorde}" Foreground="{StaticResource ColorTexto}"
+                        BorderBrush="{StaticResource ColorBorde}"
                         Click="Cancelar_Click"/>
-            </StackPanel>
+            </Grid>
+
+            <!-- ============ COLUMNA DERECHA: método de pago + teclado ============ -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <UniformGrid Grid.Row="0" Columns="2" Margin="0,0,0,10">
+                    <Button Content="💵 Efectivo" Style="{StaticResource BotonMetodoEfectivo}"
+                            Command="{Binding SeleccionarEfectivoCommand}"/>
+                    <Button Content="💳 Tarjeta" Style="{StaticResource BotonMetodoTarjeta}"
+                            Command="{Binding SeleccionarTarjetaCommand}"/>
+                </UniformGrid>
+
+                <!-- Efectivo: caja de monto + teclado + pago exacto -->
+                <Grid Grid.Row="1" Visibility="{Binding EsEfectivo, Converter={StaticResource BoolAVisible}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBox Grid.Row="0" Style="{StaticResource CajaTexto}" FontSize="28" TextAlignment="Center"
+                             Background="#0D1726" Foreground="{StaticResource ColorTexto}"
+                             BorderBrush="{StaticResource ColorBorde}"
+                             MinHeight="64" Margin="5,0,5,8"
+                             Text="{Binding DineroRecibido, UpdateSourceTrigger=LostFocus, StringFormat={}{0:N2}}"/>
+
+                    <UniformGrid Grid.Row="1" Columns="3" Rows="3">
+                        <Button Content="$5" Style="{StaticResource BotonTeclado}"
+                                Command="{Binding AgregarMontoCommand}" CommandParameter="5"/>
+                        <Button Content="$10" Style="{StaticResource BotonTeclado}"
+                                Command="{Binding AgregarMontoCommand}" CommandParameter="10"/>
+                        <Button Content="$20" Style="{StaticResource BotonTeclado}"
+                                Command="{Binding AgregarMontoCommand}" CommandParameter="20"/>
+                        <Button Content="$50" Style="{StaticResource BotonTeclado}"
+                                Command="{Binding AgregarMontoCommand}" CommandParameter="50"/>
+                        <Button Content="$100" Style="{StaticResource BotonTeclado}"
+                                Command="{Binding AgregarMontoCommand}" CommandParameter="100"/>
+                        <Button Content="$200" Style="{StaticResource BotonTeclado}"
+                                Command="{Binding AgregarMontoCommand}" CommandParameter="200"/>
+                        <Button Content="$500" Style="{StaticResource BotonTeclado}"
+                                Command="{Binding AgregarMontoCommand}" CommandParameter="500"/>
+                        <Button Content="$1000" Style="{StaticResource BotonTeclado}"
+                                Command="{Binding AgregarMontoCommand}" CommandParameter="1000"/>
+                        <Button Content="Limpiar" Style="{StaticResource BotonPeligro}"
+                                Background="{StaticResource ColorPeligro}" Foreground="White"
+                                FontSize="20" Margin="5" Height="Auto" MinHeight="56"
+                                Command="{Binding LimpiarMontoCommand}"/>
+                    </UniformGrid>
+
+                    <Button Grid.Row="2" Content="Pago exacto" Style="{StaticResource BotonNormal}"
+                            Background="{StaticResource ColorPrimario}" Foreground="#07111F"
+                            BorderBrush="{StaticResource ColorPrimario}"
+                            FontWeight="SemiBold" FontSize="22" Height="60" Margin="5,6,5,0"
+                            Command="{Binding PagoExactoCommand}"/>
+                </Grid>
+
+                <!-- Tarjeta: solo un mensaje -->
+                <Border Grid.Row="1" Style="{StaticResource TarjetaCobro}" VerticalAlignment="Top" Margin="5,0,5,0"
+                        Visibility="{Binding EsTarjeta, Converter={StaticResource BoolAVisible}}">
+                    <TextBlock Text="Cobra en la terminal y luego presiona CONFIRMAR VENTA."
+                               FontSize="20" TextWrapping="Wrap" TextAlignment="Center" Margin="0,24"
+                               Foreground="{StaticResource ColorTextoSecundario}"/>
+                </Border>
+            </Grid>
         </Grid>
-    </ScrollViewer>
+    </Grid>
 </Window>

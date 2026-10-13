@@ -8,4 +8,5 @@ public interface ICotizacionService
     Task<List<Cotizacion>> ObtenerHistorialAsync();
     Task<Cotizacion?> ObtenerDetalleAsync(int cotizacionId);
     Task EliminarAsync(int cotizacionId);
+    Task GuardarNotasAsync(int cotizacionId, string? nota1, string? nota2);
 }

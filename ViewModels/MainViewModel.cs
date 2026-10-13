@@ -56,13 +56,21 @@ public partial class MainViewModel : ObservableObject
 
     private async Task CargarProductosAsync()
     {
-        var productos = string.IsNullOrWhiteSpace(TextoBusqueda)
-            ? await _productoService.ObtenerActivosAsync()
-            : await _productoService.BuscarAsync(TextoBusqueda);
+        try
+        {
+            var productos = string.IsNullOrWhiteSpace(TextoBusqueda)
+                ? await _productoService.ObtenerActivosAsync()
+                : await _productoService.BuscarAsync(TextoBusqueda);
 
-        ProductosEncontrados.Clear();
-        foreach (var p in productos)
-            ProductosEncontrados.Add(p);
+            ProductosEncontrados.Clear();
+            foreach (var producto in productos)
+                ProductosEncontrados.Add(producto);
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.Log(ex, "Carga de productos para venta");
+            MensajeError = "No se pudieron cargar los productos. Intenta de nuevo o reinicia el programa.";
+        }
     }
 
     partial void OnTextoBusquedaChanged(string value)
@@ -144,6 +152,52 @@ public partial class MainViewModel : ObservableObject
         Subtotal = DesgloseActual.Subtotal;
         Impuestos = DesgloseActual.Impuestos;
         Total = DesgloseActual.Total;
+    }
+    /// <summary>
+    /// Carga los artículos de una cotización en el carrito (sin confirmar la venta).
+    /// Devuelve los nombres de los artículos que ya no existen o fueron desactivados.
+    /// </summary>
+    public async Task<List<string>> CargarCotizacionAsync(Cotizacion cotizacion)
+    {
+        if (cotizacion.Detalles.Count == 0)
+            throw new InvalidOperationException("La cotización no contiene artículos.");
+
+        var omitidos = new List<string>();
+        var nuevos = new List<CarritoItemViewModel>();
+
+        foreach (var detalle in cotizacion.Detalles)
+        {
+            var producto = await _productoService.ObtenerPorIdAsync(detalle.ProductoId);
+            if (producto is null || !producto.Activo)
+            {
+                omitidos.Add(detalle.NombreProducto);
+                continue;
+            }
+
+            nuevos.Add(new CarritoItemViewModel(producto, detalle.Cantidad)
+            {
+                PrecioUnitario = detalle.PrecioUnitario,
+                DescuentoPorcentaje = detalle.DescuentoPorcentaje
+            });
+        }
+
+        if (nuevos.Count == 0)
+            throw new InvalidOperationException("Ninguno de los artículos de la cotización está disponible en el catálogo.");
+
+        Carrito.Clear();
+        foreach (var item in nuevos)
+            Carrito.Add(item);
+
+        var bajoPedido = nuevos
+            .Where(i => i.Cantidad > i.Producto.Existencia)
+            .Select(i => i.Producto.Nombre)
+            .ToList();
+
+        MensajeError = bajoPedido.Count > 0
+            ? $"Aviso: no hay existencia suficiente de: {string.Join(", ", bajoPedido)}. Se venderá bajo pedido."
+            : null;
+
+        return omitidos;
     }
 
     public async Task<Venta> ConfirmarVentaAsync(decimal dineroRecibido, MetodoPago metodoPago)

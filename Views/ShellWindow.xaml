@@ -7,68 +7,101 @@
         Background="{StaticResource ColorFondo}"
         FontFamily="Segoe UI">
 
-    <Grid Margin="40">
+    <Grid Margin="48,32,48,40">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Style="{StaticResource TarjetaProducto}" Margin="0,0,0,20">
-            <UniformGrid Columns="4">
-                <StackPanel Margin="10">
-                    <TextBlock Text="VENTAS DE HOY" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
-                    <TextBlock Text="{Binding VentasHoy, StringFormat='{}{0:C2}'}" FontSize="26" FontWeight="Bold"
-                               Foreground="{StaticResource ColorPrimario}"/>
-                </StackPanel>
-                <StackPanel Margin="10">
-                    <TextBlock Text="PRODUCTOS CON STOCK BAJO" FontSize="13" Foreground="{StaticResource ColorTextoSecundario}"/>
-                    <TextBlock Text="{Binding ProductosStockBajo}" FontSize="26" FontWeight="Bold"
-                               Foreground="{StaticResource ColorAviso}"/>
-                </StackPanel>
-                <Button Content="💾 Respaldar datos" Style="{StaticResource BotonNormal}"
-                        Background="{StaticResource ColorAcento}" Margin="10"
-                        Command="{Binding RespaldarCommand}"/>
-                <Button Content="⚙ Configuración" Style="{StaticResource BotonNormal}"
-                        Background="{StaticResource ColorTextoSecundario}" Margin="10"
+        <!-- Encabezado: título a la izquierda, utilidades a la derecha -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Punto de Venta" FontSize="34" FontWeight="Bold"
+                           Foreground="{StaticResource ColorAcento}"/>
+                <Border Width="56" Height="4" CornerRadius="2" HorizontalAlignment="Left"
+                        Background="{StaticResource ColorPrimario}" Margin="0,8,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Content="💾 Respaldar datos" Style="{StaticResource BotonSecundario}"
+                        Margin="0,0,12,0" Command="{Binding RespaldarCommand}"/>
+                <Button Content="⚙ Configuración" Style="{StaticResource BotonSecundario}"
                         Click="AbrirConfiguracion_Click"/>
-            </UniformGrid>
-        </Border>
+            </StackPanel>
+        </Grid>
 
-        <TextBlock Grid.Row="1" Text="¿Qué deseas hacer?"
-                   FontSize="32" FontWeight="Bold"
-                   Foreground="{StaticResource ColorAcento}"
-                   HorizontalAlignment="Center"
-                   Margin="0,0,0,30"/>
-
-        <UniformGrid Grid.Row="2" Columns="2" Rows="2">
-
-            <Border Style="{StaticResource TarjetaProducto}" Margin="16">
-                <Button Content="🛒&#10;VENTA" Style="{StaticResource BotonGrande}"
-                        FontSize="28" Height="180"
-                        Click="AbrirVenta_Click"/>
+        <!-- Indicadores del día -->
+        <UniformGrid Grid.Row="1" Columns="2" Margin="0,0,0,28">
+            <Border Style="{StaticResource TarjetaProducto}" Margin="0,0,10,0">
+                <StackPanel>
+                    <TextBlock Text="VENTAS DE HOY" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{StaticResource ColorTextoSecundario}"/>
+                    <TextBlock Text="{Binding VentasHoy, StringFormat='{}{0:C2}'}" FontSize="32" FontWeight="Bold"
+                               Foreground="{StaticResource ColorAcento}" Margin="0,4,0,0"/>
+                </StackPanel>
             </Border>
-
-            <Border Style="{StaticResource TarjetaProducto}" Margin="16">
-                <Button Content="📋&#10;COTIZAR" Style="{StaticResource BotonGrande}"
-                        FontSize="28" Height="180"
-                        Background="{StaticResource ColorAcento}"
-                        Click="AbrirCotizar_Click"/>
+            <Border Style="{StaticResource TarjetaProducto}" Margin="10,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="PRODUCTOS CON STOCK BAJO" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{StaticResource ColorTextoSecundario}"/>
+                    <TextBlock Text="{Binding ProductosStockBajo}" FontSize="32" FontWeight="Bold"
+                               Foreground="{StaticResource ColorPrimario}" Margin="0,4,0,0"/>
+                </StackPanel>
             </Border>
+        </UniformGrid>
 
-            <Border Style="{StaticResource TarjetaProducto}" Margin="16">
-                <Button Content="📦&#10;INVENTARIO" Style="{StaticResource BotonGrande}"
-                        FontSize="28" Height="180"
-                        Background="{StaticResource ColorPrimario}"
-                        Click="AbrirInventario_Click"/>
-            </Border>
+        <TextBlock Grid.Row="2" Text="¿Qué deseas hacer?" Style="{StaticResource TituloSeccion}"
+                   FontSize="24" Foreground="{StaticResource ColorTexto}" Margin="4,0,0,8"/>
 
-            <Border Style="{StaticResource TarjetaProducto}" Margin="16">
-                <Button Content="📊&#10;HISTORIAL" Style="{StaticResource BotonGrande}"
-                        FontSize="28" Height="180"
-                        Background="{StaticResource ColorTextoSecundario}"
-                        Click="AbrirHistorial_Click"/>
-            </Border>
+        <!-- Menú principal: Venta en naranja (acción principal), el resto en azul -->
+        <UniformGrid Grid.Row="3" Columns="2" Rows="2">
+
+            <Button Style="{StaticResource BotonGrande}" Margin="6" MinHeight="140"
+                    Click="AbrirVenta_Click">
+                <StackPanel>
+                    <TextBlock Text="🛒" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="VENTA" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                    <TextBlock Text="Cobrar productos" FontSize="15" FontWeight="Normal" Opacity="0.9"
+                               HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource BotonGrande}" Margin="6" MinHeight="140"
+                    Background="{StaticResource ColorAcento}" Click="AbrirCotizar_Click">
+                <StackPanel>
+                    <TextBlock Text="📋" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="COTIZAR" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                    <TextBlock Text="Preparar un presupuesto" FontSize="15" FontWeight="Normal" Opacity="0.9"
+                               HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource BotonGrande}" Margin="6" MinHeight="140"
+                    Background="{StaticResource ColorAcento}" Click="AbrirInventario_Click">
+                <StackPanel>
+                    <TextBlock Text="📦" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="INVENTARIO" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                    <TextBlock Text="Productos y existencias" FontSize="15" FontWeight="Normal" Opacity="0.9"
+                               HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource BotonGrande}" Margin="6" MinHeight="140"
+                    Background="{StaticResource ColorAcento}" Click="AbrirHistorial_Click">
+                <StackPanel>
+                    <TextBlock Text="📊" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="HISTORIAL" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                    <TextBlock Text="Ventas y cotizaciones" FontSize="15" FontWeight="Normal" Opacity="0.9"
+                               HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Button>
 
         </UniformGrid>
     </Grid>

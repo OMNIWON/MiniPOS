@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Historial" Height="750" Width="1200"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="{StaticResource ColorFondo}"
         FontFamily="Segoe UI">
 
@@ -137,9 +138,13 @@
                             <Button Content="🖨 Imprimir ticket" Style="{StaticResource BotonNormal}" Margin="0,12,0,0"
                                     Command="{Binding ImprimirTicketCommand}"
                                     CommandParameter="{Binding VentaSeleccionada}"/>
-                            <TextBlock Text="Nota" FontSize="12" Foreground="{StaticResource ColorTextoSecundario}" Margin="0,12,0,2"/>
-                            <TextBox Style="{StaticResource CajaTexto}" FontSize="14"
-                                     Text="{Binding VentaSeleccionada.Nota, UpdateSourceTrigger=LostFocus}"/>
+                            <TextBlock Text="Nota 1" FontSize="12" Foreground="{StaticResource ColorTextoSecundario}" Margin="0,12,0,2"/>
+                            <TextBlock Text="{Binding VentaSeleccionada.Nota1, TargetNullValue='(sin nota)'}" FontSize="14" TextWrapping="Wrap"/>
+                            <TextBlock Text="Nota 2" FontSize="12" Foreground="{StaticResource ColorTextoSecundario}" Margin="0,8,0,2"/>
+                            <TextBlock Text="{Binding VentaSeleccionada.Nota2, TargetNullValue='(sin nota)'}" FontSize="14" TextWrapping="Wrap"/>
+                            <Button Content="📝 Editar notas" Style="{StaticResource BotonNormal}" Margin="0,10,0,0"
+                                    Command="{Binding EditarNotasVentaCommand}"
+                                    CommandParameter="{Binding VentaSeleccionada}"/>
 
                             <Button Content="🗑 Anular esta venta" Style="{StaticResource BotonPeligro}"
                                     Margin="0,16,0,0"
@@ -172,9 +177,16 @@
                             <Separator Margin="0,10"/>
                             <TextBlock Text="{Binding CotizacionSeleccionada.Total, StringFormat='Total: {0:C2}'}" FontSize="18" FontWeight="Bold"/>
 
-                            <TextBlock Text="Nota" FontSize="12" Foreground="{StaticResource ColorTextoSecundario}" Margin="0,12,0,2"/>
-                            <TextBox Style="{StaticResource CajaTexto}" FontSize="14"
-                                     Text="{Binding CotizacionSeleccionada.Nota, UpdateSourceTrigger=LostFocus}"/>
+                            <TextBlock Text="Nota 1" FontSize="12" Foreground="{StaticResource ColorTextoSecundario}" Margin="0,12,0,2"/>
+                            <TextBlock Text="{Binding CotizacionSeleccionada.Nota1, TargetNullValue='(sin nota)'}" FontSize="14" TextWrapping="Wrap"/>
+                            <TextBlock Text="Nota 2" FontSize="12" Foreground="{StaticResource ColorTextoSecundario}" Margin="0,8,0,2"/>
+                            <TextBlock Text="{Binding CotizacionSeleccionada.Nota2, TargetNullValue='(sin nota)'}" FontSize="14" TextWrapping="Wrap"/>
+                            <Button Content="📝 Editar notas" Style="{StaticResource BotonNormal}" Margin="0,10,0,0"
+                                    Command="{Binding EditarNotasCotizacionCommand}"
+                                    CommandParameter="{Binding CotizacionSeleccionada}"/>
+                            <Button Content="🛒 Pasar a Venta" Style="{StaticResource BotonNormal}" Margin="0,10,0,0"
+                                    Command="{Binding PasarAVentaCommand}"
+                                    CommandParameter="{Binding CotizacionSeleccionada}"/>
 
                             <Button Content="🗑 Eliminar cotización" Style="{StaticResource BotonPeligro}"
                                     Margin="0,16,0,0"

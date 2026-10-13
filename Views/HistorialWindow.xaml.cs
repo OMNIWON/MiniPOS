@@ -9,6 +9,7 @@ public partial class HistorialWindow : Window
     {
         InitializeComponent();
         DataContext = viewModel;
+        viewModel.SolicitarCerrar += Close;
     }
 
     private void RegresarAlMenu_Click(object sender, RoutedEventArgs e)

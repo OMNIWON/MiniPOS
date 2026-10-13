@@ -1,6 +1,8 @@
 ﻿using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using POS.ViewModels;
+using POS.Models;
+using POS.Services;
 
 namespace POS.Views;
 
@@ -43,7 +45,38 @@ public partial class ShellWindow : Window
         var ventana = App.AppHost.Services.GetRequiredService<HistorialWindow>();
         ventana.Owner = this;
         ventana.ShowDialog();
+
+        var cotizacion = App.AppHost.Services.GetRequiredService<CotizacionTransferService>().Consumir();
+        if (cotizacion is not null)
+            await AbrirVentaDesdeCotizacionAsync(cotizacion);
+
         await _viewModel.RefrescarAsync();
+    }
+
+    private async Task AbrirVentaDesdeCotizacionAsync(Cotizacion cotizacion)
+    {
+        try
+        {
+            var venta = App.AppHost.Services.GetRequiredService<MainWindow>();
+            venta.Owner = this;
+
+            var omitidos = await venta.CargarCotizacionAsync(cotizacion);
+            if (omitidos.Count > 0)
+            {
+                MessageBox.Show(
+                    "Estos artículos ya no están disponibles y no se cargaron al carrito:\n\n• " +
+                    string.Join("\n• ", omitidos),
+                    "Algunos artículos no se cargaron", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
+            venta.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.Log(ex, "Pasar cotización a venta");
+            MessageBox.Show($"No se pudo cargar la cotización en una venta.\n\nDetalle: {ex.Message}",
+                "Error al crear venta", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     private void AbrirConfiguracion_Click(object sender, RoutedEventArgs e)
