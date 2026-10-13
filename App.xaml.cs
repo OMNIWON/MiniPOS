@@ -82,6 +82,16 @@ public partial class App : Application
                 var db = scope.ServiceProvider.GetRequiredService<PosDbContext>();
                 db.Database.Migrate();
                 DbInitializer.Seed(db);
+                string carpetaImagenes = Path.Combine(
+                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "POS", "Imagenes");
+
+                foreach (var producto in db.Productos.Where(prod => prod.RutaImagen != null))
+                {
+                    string nueva = Path.Combine(carpetaImagenes, Path.GetFileName(producto.RutaImagen!));
+                    if (producto.RutaImagen != nueva)
+                        producto.RutaImagen = nueva;
+                }
+                db.SaveChanges();
                 AppHost.Services.GetRequiredService<IConfiguracionService>().Cargar();
             });
 
