@@ -58,8 +58,10 @@ public partial class App : Application
     }
 
     protected override async void OnStartup(StartupEventArgs e)
-    {
+    {   
         base.OnStartup(e);
+        FrameworkElement.StyleProperty.OverrideMetadata(typeof(Window),
+    new FrameworkPropertyMetadata { DefaultValue = FindResource(typeof(Window)) });
         DispatcherUnhandledException += App_DispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += (_, args) =>
             ErrorLogger.Log(args.ExceptionObject as Exception ?? new Exception("Excepción no administrada."), "AppDomain");

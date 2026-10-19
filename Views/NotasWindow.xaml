@@ -34,7 +34,7 @@
         </Grid>
 
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Cancelar" Style="{StaticResource BotonSecundario}"
+            <Button Content="Cancelar" Style="{StaticResource BotonPeligro}"
                     MinWidth="130" Height="50" Margin="0,0,12,0" IsCancel="True"/>
             <Button Content="Guardar notas" Style="{StaticResource BotonGrande}"
                     MinWidth="170" Height="50" FontSize="18" Padding="14,6" Click="Guardar_Click"/>

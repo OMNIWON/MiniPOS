@@ -19,7 +19,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="COTIZACIÓN" FontSize="28" FontWeight="Bold"
-                       Foreground="{StaticResource ColorAcento}" VerticalAlignment="Center"/>
+                       Foreground="{StaticResource ColorTitulo}" VerticalAlignment="Center"/>
             <Button Grid.Column="1" Content="⬅ Regresar al menú" Style="{StaticResource BotonNormal}"
                     Background="{StaticResource ColorTextoSecundario}" Click="RegresarAlMenu_Click"/>
         </Grid>
@@ -169,7 +169,7 @@
                         <TextBlock Grid.Column="0" Text="TOTAL" FontSize="20" VerticalAlignment="Center"
                                    Foreground="{StaticResource ColorTextoSecundario}"/>
                         <TextBlock Grid.Column="1" Text="{Binding Total, StringFormat='{}{0:C2}'}"
-                                   Style="{StaticResource TextoTotal}" Foreground="{StaticResource ColorAcento}"/>
+                                   Style="{StaticResource TextoTotal}" Foreground="{StaticResource ColorTitulo}"/>
                     </Grid>
 
                     <Button Grid.Row="5" Content="📋 GUARDAR COTIZACIÓN" Style="{StaticResource BotonGrande}"

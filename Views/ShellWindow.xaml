@@ -24,15 +24,15 @@
 
             <StackPanel Grid.Column="0">
                 <TextBlock Text="Punto de Venta" FontSize="34" FontWeight="Bold"
-                           Foreground="{StaticResource ColorAcento}"/>
+                           Foreground="{StaticResource ColorTitulo}"/>
                 <Border Width="56" Height="4" CornerRadius="2" HorizontalAlignment="Left"
                         Background="{StaticResource ColorPrimario}" Margin="0,8,0,0"/>
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Content="💾 Respaldar datos" Style="{StaticResource BotonSecundario}"
+                <Button Content="💾 Respaldar datos" Style="{StaticResource BotonPeligro}"
                         Margin="0,0,12,0" Command="{Binding RespaldarCommand}"/>
-                <Button Content="⚙ Configuración" Style="{StaticResource BotonSecundario}"
+                <Button Content="⚙ Configuración" Style="{StaticResource BotonPeligro}"
                         Click="AbrirConfiguracion_Click"/>
             </StackPanel>
         </Grid>
@@ -44,7 +44,7 @@
                     <TextBlock Text="VENTAS DE HOY" FontSize="13" FontWeight="SemiBold"
                                Foreground="{StaticResource ColorTextoSecundario}"/>
                     <TextBlock Text="{Binding VentasHoy, StringFormat='{}{0:C2}'}" FontSize="32" FontWeight="Bold"
-                               Foreground="{StaticResource ColorAcento}" Margin="0,4,0,0"/>
+                               Foreground="{StaticResource ColorTitulo}" Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource TarjetaProducto}" Margin="10,0,0,0">
@@ -63,7 +63,7 @@
         <!-- Menú principal: Venta en naranja (acción principal), el resto en azul -->
         <UniformGrid Grid.Row="3" Columns="2" Rows="2">
 
-            <Button Style="{StaticResource BotonGrande}" Margin="6" MinHeight="140"
+            <Button Style="{StaticResource BotonNormal}" Margin="6" MinHeight="140"
                     Click="AbrirVenta_Click">
                 <StackPanel>
                     <TextBlock Text="🛒" FontSize="48" HorizontalAlignment="Center"/>
@@ -93,8 +93,8 @@
                 </StackPanel>
             </Button>
 
-            <Button Style="{StaticResource BotonGrande}" Margin="6" MinHeight="140"
-                    Background="{StaticResource ColorAcento}" Click="AbrirHistorial_Click">
+            <Button Style="{StaticResource BotonNormal}" Margin="6" MinHeight="140"
+                   Click="AbrirHistorial_Click">
                 <StackPanel>
                     <TextBlock Text="📊" FontSize="48" HorizontalAlignment="Center"/>
                     <TextBlock Text="HISTORIAL" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,4,0,0"/>

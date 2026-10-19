@@ -4,12 +4,13 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" Height="260" Width="400" Topmost="True"
         ShowInTaskbar="False">
-    <Border Background="{StaticResource ColorAcento}" CornerRadius="16">
+    <Border Background="{StaticResource ColorTarjeta}" CornerRadius="16"
+            BorderBrush="{StaticResource ColorPrimario}" BorderThickness="2">
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="280">
             <TextBlock Text="PUNTO DE VENTA" FontSize="26" FontWeight="Bold"
                        Foreground="White" HorizontalAlignment="Center"/>
             <TextBlock Text="Gas LP y Ferretería" FontSize="14"
-                       Foreground="{StaticResource ColorAcentoClaro}" HorizontalAlignment="Center" Margin="0,6,0,24"/>
+                       Foreground="{StaticResource ColorTitulo}" HorizontalAlignment="Center" Margin="0,6,0,24"/>
             <ProgressBar IsIndeterminate="True" Height="6"
                          Foreground="{StaticResource ColorPrimario}"
                          Background="#33FFFFFF" BorderThickness="0"/>

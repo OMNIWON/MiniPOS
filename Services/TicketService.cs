@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Globalization;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -8,6 +9,16 @@ namespace POS.Services;
 
 public class TicketService : ITicketService
 {
+    private const double TamanoFuente = 12;
+
+    // Ajuste fino de la posición del texto (en unidades de 1/96 de pulgada; 4 ≈ 1 mm).
+    // Si el texto se recorta a la izquierda, sube MargenIzquierdo de 2 en 2.
+    private const double MargenIzquierdo = 36;
+    private const double MargenDerecho = 4;
+    private const double MargenVertical = 4;
+
+    private static readonly FontFamily Fuente = new("Consolas");
+
     private readonly IConfiguracionService _configuracion;
 
     public TicketService(IConfiguracionService configuracion)
@@ -17,132 +28,91 @@ public class TicketService : ITicketService
 
     public void Imprimir(Venta venta)
     {
-        var cfg = _configuracion.Actual;
+        Enviar($"Ticket venta {venta.Id}",
+            columnas => FormatoTicket.Construir(venta, _configuracion.Actual, columnas));
+    }
 
+    public void ImprimirPrueba()
+    {
+        Enviar("Ticket de prueba", columnas => FormatoTicket.ConstruirPrueba(columnas));
+    }
+
+    private void Enviar(string titulo, Func<int, List<LineaTicket>> construir)
+    {
         var dialogo = new PrintDialog();
         if (dialogo.ShowDialog() != true) return;
 
-        double anchoTicket = cfg.AnchoTicketMm * 96.0 / 25.4;
-        double ancho = dialogo.PrintableAreaWidth > 0
-            ? Math.Min(dialogo.PrintableAreaWidth, anchoTicket)
-            : anchoTicket;
+        double anchoImprimible = AnchoImprimibleDip(_configuracion.Actual.AnchoTicketMm);
+        double anchoPagina = dialogo.PrintableAreaWidth > 0
+            ? Math.Min(dialogo.PrintableAreaWidth, anchoImprimible)
+            : anchoImprimible;
 
-        var documento = Construir(venta, cfg);
-        documento.PageWidth = ancho;
+        int columnas = CalcularColumnas(anchoPagina);
+
+        var documento = CrearDocumento(construir(columnas), anchoPagina);
         documento.PageHeight = dialogo.PrintableAreaHeight > 0 ? dialogo.PrintableAreaHeight : 1100;
-        documento.ColumnWidth = ancho;
-        documento.ColumnGap = 0;
-        documento.PagePadding = new Thickness(6);
 
-        dialogo.PrintDocument(((IDocumentPaginatorSource)documento).DocumentPaginator, $"Ticket venta {venta.Id}");
+        dialogo.PrintDocument(((IDocumentPaginatorSource)documento).DocumentPaginator, titulo);
     }
 
-    private static FlowDocument Construir(Venta venta, ConfiguracionNegocio cfg)
+    // Papel de 58 mm imprime ~48 mm; papel de 80 mm imprime ~72 mm.
+    private static double AnchoImprimibleDip(int anchoPapelMm)
     {
-        var doc = new FlowDocument
+        double mm = anchoPapelMm <= 58 ? 48 : 72;
+        return mm * 96.0 / 25.4;
+    }
+
+    private static int CalcularColumnas(double anchoPagina)
+    {
+        double anchoCaracter = MedirCaracter();
+        double anchoUtil = anchoPagina - MargenIzquierdo - MargenDerecho;
+        int columnas = (int)Math.Floor(anchoUtil / (anchoCaracter * 1.02));
+        return Math.Max(columnas, 16);
+    }
+
+    private static double MedirCaracter()
+    {
+        var texto = new FormattedText(
+            "0",
+            CultureInfo.InvariantCulture,
+            FlowDirection.LeftToRight,
+            new Typeface(Fuente, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
+            TamanoFuente,
+            Brushes.Black,
+            1.0);
+
+        return texto.WidthIncludingTrailingWhitespace;
+    }
+
+    private static FlowDocument CrearDocumento(List<LineaTicket> lineas, double anchoPagina)
+    {
+        var documento = new FlowDocument
         {
-            FontFamily = new FontFamily("Consolas"),
-            FontSize = 10,
-            Foreground = Brushes.Black
+            FontFamily = Fuente,
+            FontSize = TamanoFuente,
+            Foreground = Brushes.Black,
+            PageWidth = anchoPagina,
+            PagePadding = new Thickness(MargenIzquierdo, MargenVertical, MargenDerecho, MargenVertical),
+            ColumnWidth = anchoPagina - MargenIzquierdo - MargenDerecho,
+            ColumnGap = 0,
+            TextAlignment = TextAlignment.Left
         };
 
-        void Texto(string? texto, double tamano = 10, bool negrita = false, TextAlignment alineacion = TextAlignment.Center)
+        var parrafo = new Paragraph { Margin = new Thickness(0) };
+
+        foreach (var linea in lineas)
         {
-            if (string.IsNullOrWhiteSpace(texto)) return;
-            doc.Blocks.Add(new Paragraph(new Run(texto))
+            parrafo.Inlines.Add(new Run(linea.Texto)
             {
-                TextAlignment = alineacion,
-                FontSize = tamano,
-                FontWeight = negrita ? FontWeights.Bold : FontWeights.Normal,
-                Margin = new Thickness(0, 0, 0, 2)
+                FontWeight = linea.Negrita ? FontWeights.Bold : FontWeights.Normal
             });
+            parrafo.Inlines.Add(new LineBreak());
         }
 
-        void Separador() => doc.Blocks.Add(new Paragraph(new Run(" "))
-        {
-            FontSize = 2,
-            Margin = new Thickness(0, 3, 0, 3),
-            BorderBrush = Brushes.Black,
-            BorderThickness = new Thickness(0, 0, 0, 1)
-        });
+        for (int i = 0; i < 4; i++)
+            parrafo.Inlines.Add(new LineBreak());
 
-        Texto(cfg.NombreNegocio, 13, true);
-        Texto(cfg.Direccion);
-        Texto(string.IsNullOrWhiteSpace(cfg.Telefono) ? null : $"Tel. {cfg.Telefono}");
-        Separador();
-        Texto($"Ticket No. {venta.Id}", 10, false, TextAlignment.Left);
-        Texto($"Fecha: {venta.Fecha:dd/MM/yyyy HH:mm}", 10, false, TextAlignment.Left);
-        Separador();
-
-        var tabla = new Table { CellSpacing = 0 };
-        tabla.Columns.Add(new TableColumn { Width = new GridLength(34) });
-        tabla.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
-        tabla.Columns.Add(new TableColumn { Width = new GridLength(76) });
-        var grupo = new TableRowGroup();
-        tabla.RowGroups.Add(grupo);
-
-        foreach (var d in venta.Detalles)
-        {
-            var descripcion = new Paragraph(new Run(d.NombreProducto)) { Margin = new Thickness(0) };
-            string detalle = $"{d.PrecioUnitario:C2} c/u";
-            if (d.DescuentoPorcentaje > 0)
-                detalle += $"  -{d.DescuentoPorcentaje:0.##}%";
-            descripcion.Inlines.Add(new LineBreak());
-            descripcion.Inlines.Add(new Run(detalle) { FontSize = 8 });
-
-            var fila = new TableRow();
-            fila.Cells.Add(Celda(d.Cantidad.ToString("0.###"), TextAlignment.Left));
-            fila.Cells.Add(new TableCell(descripcion));
-            fila.Cells.Add(Celda(d.Subtotal.ToString("C2"), TextAlignment.Right));
-            grupo.Rows.Add(fila);
-        }
-        doc.Blocks.Add(tabla);
-
-        Separador();
-
-        var totales = new Table { CellSpacing = 0 };
-        totales.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
-        totales.Columns.Add(new TableColumn { Width = new GridLength(90) });
-        var filas = new TableRowGroup();
-        totales.RowGroups.Add(filas);
-
-        void Linea(string etiqueta, string valor, bool negrita = false)
-        {
-            var fila = new TableRow();
-            fila.Cells.Add(Celda(etiqueta, TextAlignment.Left, negrita));
-            fila.Cells.Add(Celda(valor, TextAlignment.Right, negrita));
-            filas.Rows.Add(fila);
-        }
-
-        if (venta.Impuestos > 0)
-        {
-            Linea("Subtotal", venta.Subtotal.ToString("C2"));
-            Linea($"IVA ({venta.TasaIva:0.##}%)", venta.Impuestos.ToString("C2"));
-        }
-
-        Linea("TOTAL", venta.Total.ToString("C2"), true);
-        Linea("Pago", venta.MetodoPago == MetodoPago.Tarjeta ? "Tarjeta" : "Efectivo");
-
-        if (venta.MetodoPago == MetodoPago.Efectivo)
-        {
-            Linea("Recibido", venta.DineroRecibido.ToString("C2"));
-            Linea("Cambio", venta.Cambio.ToString("C2"));
-        }
-        doc.Blocks.Add(totales);
-
-        Separador();
-        Texto(cfg.MensajeTicket);
-
-        return doc;
-    }
-
-    private static TableCell Celda(string texto, TextAlignment alineacion, bool negrita = false)
-    {
-        return new TableCell(new Paragraph(new Run(texto))
-        {
-            Margin = new Thickness(0),
-            TextAlignment = alineacion,
-            FontWeight = negrita ? FontWeights.Bold : FontWeights.Normal
-        });
+        documento.Blocks.Add(parrafo);
+        return documento;
     }
 }

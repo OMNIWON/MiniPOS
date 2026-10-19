@@ -78,7 +78,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Text="COBRO" FontSize="32" FontWeight="Bold"
-                   Foreground="{StaticResource ColorAcento}" Margin="5,0,0,18"/>
+                   Foreground="{StaticResource ColorTitulo}" Margin="5,0,0,18"/>
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>

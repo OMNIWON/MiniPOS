@@ -9,7 +9,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="28">
             <TextBlock Text="CONFIGURACIÓN" FontSize="26" FontWeight="Bold"
-                       Foreground="{StaticResource ColorAcento}" Margin="0,0,0,18"/>
+                       Foreground="{StaticResource ColorTitulo}" Margin="0,0,0,18"/>
 
             <Border Style="{StaticResource TarjetaProducto}" Margin="0,0,0,16">
                 <StackPanel>
@@ -55,7 +55,9 @@
 
             <TextBlock Text="{Binding Mensaje}" Style="{StaticResource MensajeError}"
                        Visibility="{Binding Mensaje, Converter={StaticResource NuloAColapsado}}"/>
-
+            <Button Content="🖨 Imprimir ticket de prueba" Style="{StaticResource BotonNormal}"
+                    Background="{StaticResource ColorAcento}" Margin="0,10,0,0"
+                    Click="ImprimirPrueba_Click"/>
             <Button Content="💾 Guardar" Style="{StaticResource BotonGrande}" Margin="0,10,0,8"
                     Command="{Binding GuardarCommand}"/>
             <Button Content="Cancelar" Style="{StaticResource BotonNormal}"

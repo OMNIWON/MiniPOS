@@ -4,8 +4,9 @@
         Title="Historial" Height="750" Width="1200"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
-        Background="{StaticResource ColorFondo}"
+      Background="{StaticResource ColorFondo}"
         FontFamily="Segoe UI">
+   
 
     <Grid Margin="16">
         <Grid.RowDefinitions>
@@ -90,7 +91,7 @@
                                         </StackPanel>
                                         <TextBlock Grid.Column="1" Text="{Binding Total, StringFormat='{}{0:C2}'}"
                                                    FontSize="16" FontWeight="Bold" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource ColorAcento}"/>
+                                                   Foreground="{StaticResource ColorTitulo}"/>
                                         <Button Grid.Column="2" Content="Ver" Style="{StaticResource BotonNormal}" Padding="8,6"
                                                 Command="{Binding DataContext.SeleccionarCotizacionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"/>

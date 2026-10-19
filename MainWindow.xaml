@@ -19,7 +19,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="PUNTO DE VENTA" FontSize="28" FontWeight="Bold"
-                       Foreground="{StaticResource ColorAcento}" VerticalAlignment="Center"/>
+                       Foreground="{StaticResource ColorTitulo}" VerticalAlignment="Center"/>
             <Button Grid.Column="1" Content="⬅ Regresar al menú" Style="{StaticResource BotonNormal}"
                     Background="{StaticResource ColorTextoSecundario}" Click="RegresarAlMenu_Click"/>
         </Grid>
