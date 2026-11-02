@@ -1,0 +1,39 @@
+﻿<Window x:Class="POS.Views.CorreoConfigWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Correo de envío" Height="740" Width="540"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="28">
+            <TextBlock Text="CORREO DE ENVÍO" FontSize="24" FontWeight="Bold" Margin="0,0,0,8"/>
+
+            <TextBlock TextWrapping="Wrap" FontSize="13" Margin="0,0,0,16"
+                       Text="Desde esta cuenta se enviarán las cotizaciones. Con Gmail necesitas activar la verificación en 2 pasos y crear una contraseña de aplicación en myaccount.google.com/apppasswords. No uses tu contraseña normal."/>
+
+            <TextBlock Text="Correo" FontSize="13"/>
+            <TextBox x:Name="CajaCorreo" Style="{StaticResource CajaTexto}" Margin="0,2,0,10"/>
+
+            <TextBlock Text="Contraseña de aplicación" FontSize="13"/>
+            <PasswordBox x:Name="CajaPassword" FontSize="18" Padding="12,10" Margin="0,2,0,4"/>
+            <TextBlock x:Name="TextoEstado" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Nombre que verá el cliente (opcional)" FontSize="13"/>
+            <TextBox x:Name="CajaNombre" Style="{StaticResource CajaTexto}" Margin="0,2,0,10"/>
+
+            <TextBlock Text="Servidor" FontSize="13"/>
+            <TextBox x:Name="CajaServidor" Style="{StaticResource CajaTexto}" Margin="0,2,0,10"/>
+
+            <TextBlock Text="Puerto" FontSize="13"/>
+            <TextBox x:Name="CajaPuerto" Style="{StaticResource CajaTexto}" Margin="0,2,0,6"/>
+
+            <TextBlock x:Name="TextoMensaje" Style="{StaticResource MensajeError}" Visibility="Collapsed"/>
+
+            <Button x:Name="BotonGuardar" Content="💾 Guardar y enviar prueba" Style="{StaticResource BotonGrande}"
+                    FontSize="18" Margin="0,16,0,8" Click="GuardarYProbar_Click"/>
+            <Button Content="Cancelar" Style="{StaticResource BotonNormal}"
+                    Background="{StaticResource ColorTextoSecundario}" IsCancel="True"/>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

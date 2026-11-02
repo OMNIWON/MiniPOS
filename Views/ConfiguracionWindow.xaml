@@ -58,6 +58,9 @@
             <Button Content="🖨 Imprimir ticket de prueba" Style="{StaticResource BotonNormal}"
                     Background="{StaticResource ColorAcento}" Margin="0,10,0,0"
                     Click="ImprimirPrueba_Click"/>
+            <Button Content="✉ Configurar correo de envío" Style="{StaticResource BotonNormal}"
+                    Background="{StaticResource ColorAcento}" Margin="0,10,0,0"
+                    Click="ConfigurarCorreo_Click"/>
             <Button Content="💾 Guardar" Style="{StaticResource BotonGrande}" Margin="0,10,0,8"
                     Command="{Binding GuardarCommand}"/>
             <Button Content="Cancelar" Style="{StaticResource BotonNormal}"

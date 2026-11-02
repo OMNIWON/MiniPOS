@@ -30,4 +30,10 @@ public partial class ConfiguracionWindow : Window
                 "Error de impresión", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
+    private void ConfigurarCorreo_Click(object sender, RoutedEventArgs e)
+    {
+        var ventana = App.AppHost.Services.GetRequiredService<CorreoConfigWindow>();
+        ventana.Owner = this;
+        ventana.ShowDialog();
+    }
 }

@@ -188,6 +188,12 @@
                             <Button Content="🛒 Pasar a Venta" Style="{StaticResource BotonNormal}" Margin="0,10,0,0"
                                     Command="{Binding PasarAVentaCommand}"
                                     CommandParameter="{Binding CotizacionSeleccionada}"/>
+                            <Button Content="📄 Guardar PDF" Style="{StaticResource BotonNormal}" Margin="0,12,0,0"
+                                    Tag="{Binding CotizacionSeleccionada}" Click="CotizacionGuardarPdf_Click"/>
+                            <Button Content="🖨 Imprimir" Style="{StaticResource BotonNormal}" Margin="0,8,0,0"
+                                    Tag="{Binding CotizacionSeleccionada}" Click="CotizacionImprimir_Click"/>
+                            <Button Content="✉ Enviar por correo" Style="{StaticResource BotonNormal}" Margin="0,8,0,0"
+                                    Tag="{Binding CotizacionSeleccionada}" Click="CotizacionCorreo_Click"/>
 
                             <Button Content="🗑 Eliminar cotización" Style="{StaticResource BotonPeligro}"
                                     Margin="0,16,0,0"

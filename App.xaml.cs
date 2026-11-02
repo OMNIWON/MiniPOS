@@ -37,7 +37,10 @@ public partial class App : Application
                 services.AddScoped<IBackupService, BackupService>();
                 services.AddSingleton<IConfiguracionService, ConfiguracionService>();
                 services.AddSingleton<ITicketService, TicketService>();
+                services.AddSingleton<ICotizacionPdfService, CotizacionPdfService>();
+                services.AddSingleton<ICorreoService, CorreoService>();
 
+                services.AddTransient<POS.Views.CorreoConfigWindow>();
                 services.AddTransient<MainWindow>();
                 services.AddTransient<MainViewModel>();
                 services.AddTransient<POS.Views.ShellWindow>();

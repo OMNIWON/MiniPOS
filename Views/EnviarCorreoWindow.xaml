@@ -1,0 +1,35 @@
+﻿<Window x:Class="POS.Views.EnviarCorreoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Enviar cotización por correo" Height="720" Width="580"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="28">
+            <TextBlock x:Name="TextoTitulo" FontSize="22" FontWeight="Bold" Margin="0,0,0,14"/>
+
+            <TextBlock Text="Para (correo del cliente)" FontSize="13"/>
+            <TextBox x:Name="CajaPara" Style="{StaticResource CajaTexto}" Margin="0,2,0,10"/>
+
+            <TextBlock Text="Asunto" FontSize="13"/>
+            <TextBox x:Name="CajaAsunto" Style="{StaticResource CajaTexto}" Margin="0,2,0,10"/>
+
+            <TextBlock Text="Mensaje" FontSize="13"/>
+            <TextBox x:Name="CajaMensaje" Style="{StaticResource CajaTexto}" Margin="0,2,0,6"
+                     AcceptsReturn="True" TextWrapping="Wrap" Height="190"
+                     VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto"/>
+
+            <TextBlock x:Name="TextoAdjunto" FontSize="13" Margin="0,6,0,0"/>
+
+            <TextBlock x:Name="TextoMensaje" Style="{StaticResource MensajeError}" Visibility="Collapsed"/>
+
+            <Button x:Name="BotonEnviar" Content="✉ Enviar" Style="{StaticResource BotonGrande}"
+                    FontSize="20" Margin="0,16,0,8" Click="Enviar_Click"/>
+            <Button Content="⚙ Configurar correo de envío" Style="{StaticResource BotonNormal}"
+                    Background="{StaticResource ColorAcento}" Margin="0,0,0,8" Click="Configurar_Click"/>
+            <Button Content="Cancelar" Style="{StaticResource BotonNormal}"
+                    Background="{StaticResource ColorTextoSecundario}" IsCancel="True"/>
+        </StackPanel>
+    </ScrollViewer>
+</Window>
