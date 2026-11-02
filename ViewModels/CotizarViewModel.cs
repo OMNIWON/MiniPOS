@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using POS.Models;
@@ -11,28 +12,32 @@ public partial class CotizarViewModel : ObservableObject
 {
     private readonly IProductoService _productoService;
     private readonly ICotizacionService _cotizacionService;
+    private readonly IAgendaService _agenda;
 
     public ObservableCollection<Producto> ProductosEncontrados { get; } = new();
     public ObservableCollection<CarritoItemViewModel> Carrito { get; } = new();
+    public ObservableCollection<string> ClientesSugeridos { get; } = new();
 
-    [ObservableProperty]
-    private string textoBusqueda = string.Empty;
+    [ObservableProperty] private string textoBusqueda = string.Empty;
+    [ObservableProperty] private string? cliente;
+    [ObservableProperty] private decimal total;
+    [ObservableProperty] private string? mensajeInfo;
+    [ObservableProperty] private bool mostrarOpciones;
 
-    [ObservableProperty]
-    private string? cliente;
-
-    [ObservableProperty]
-    private decimal total;
-
-    [ObservableProperty]
-    private string? mensajeInfo;
-
-    public CotizarViewModel(IProductoService productoService, ICotizacionService cotizacionService)
+    public CotizarViewModel(IProductoService productoService, ICotizacionService cotizacionService, IAgendaService agenda)
     {
         _productoService = productoService;
         _cotizacionService = cotizacionService;
+        _agenda = agenda;
         Carrito.CollectionChanged += Carrito_CollectionChanged;
-        _ = CargarProductosAsync();
+        _ = InicializarAsync();
+    }
+
+    // Se cargan en secuencia: todas las pantallas comparten una sola conexión a la base de datos.
+    private async Task InicializarAsync()
+    {
+        await CargarProductosAsync();
+        await CargarClientesAsync();
     }
 
     private void Carrito_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -63,13 +68,27 @@ public partial class CotizarViewModel : ObservableObject
                 : await _productoService.BuscarAsync(TextoBusqueda);
 
             ProductosEncontrados.Clear();
-            foreach (var producto in productos)
-                ProductosEncontrados.Add(producto);
+            foreach (var p in productos)
+                ProductosEncontrados.Add(p);
         }
         catch (Exception ex)
         {
-            ErrorLogger.Log(ex, "Carga de productos para cotización");
-            MensajeInfo = "No se pudieron cargar los productos. Intenta de nuevo o reinicia el programa.";
+            MensajeInfo = $"No se pudieron cargar los productos: {ex.Message}";
+        }
+    }
+
+    private async Task CargarClientesAsync()
+    {
+        try
+        {
+            var nombres = await _agenda.ObtenerClientesAsync();
+            ClientesSugeridos.Clear();
+            foreach (var nombre in nombres)
+                ClientesSugeridos.Add(nombre);
+        }
+        catch
+        {
+            // Sin sugerencias; el campo cliente sigue funcionando.
         }
     }
 
@@ -77,6 +96,9 @@ public partial class CotizarViewModel : ObservableObject
     {
         _ = CargarProductosAsync();
     }
+
+    [RelayCommand]
+    private void AlternarOpciones() => MostrarOpciones = !MostrarOpciones;
 
     [RelayCommand]
     private void AgregarAlCarrito(Producto producto)
@@ -128,28 +150,47 @@ public partial class CotizarViewModel : ObservableObject
             return;
         }
 
+        string? nombreCliente = string.IsNullOrWhiteSpace(Cliente) ? null : Cliente.Trim();
+
+        var detalles = Carrito.Select(c => new DetalleCotizacion
+        {
+            ProductoId = c.Producto.Id,
+            NombreProducto = c.Producto.Nombre,
+            Cantidad = c.Cantidad,
+            PrecioUnitario = c.PrecioUnitario,
+            DescuentoPorcentaje = c.DescuentoPorcentaje,
+            Subtotal = c.Subtotal
+        }).ToList();
+
+        await _cotizacionService.GuardarAsync(detalles, nombreCliente);
+
+        Carrito.Clear();
+        Cliente = null;
+        MensajeInfo = "Cotización guardada correctamente.";
+
+        if (nombreCliente is not null)
+            await OfrecerGuardarClienteAsync(nombreCliente);
+    }
+
+    private async Task OfrecerGuardarClienteAsync(string nombre)
+    {
         try
         {
-            var detalles = Carrito.Select(c => new DetalleCotizacion
-            {
-                ProductoId = c.Producto.Id,
-                NombreProducto = c.Producto.Nombre,
-                Cantidad = c.Cantidad,
-                PrecioUnitario = c.PrecioUnitario,
-                DescuentoPorcentaje = c.DescuentoPorcentaje,
-                Subtotal = c.Subtotal
-            }).ToList();
+            if (await _agenda.ExisteClienteAsync(nombre)) return;
 
-            await _cotizacionService.GuardarAsync(detalles, Cliente);
+            var respuesta = MessageBox.Show(
+                $"¿Deseas guardar este cliente en tu agenda?\n\n{nombre}",
+                "Guardar cliente", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            Carrito.Clear();
-            Cliente = null;
-            MensajeInfo = "Cotización guardada correctamente.";
+            if (respuesta != MessageBoxResult.Yes) return;
+
+            await _agenda.GuardarClienteAsync(nombre);
+            await CargarClientesAsync();
         }
         catch (Exception ex)
         {
-            ErrorLogger.Log(ex, "Guardado de cotización");
-            MensajeInfo = "No se pudo guardar la cotización. Revisa los datos e inténtalo de nuevo.";
+            MessageBox.Show($"No se pudo guardar el cliente.\n\nDetalle: {ex.Message}",
+                "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 

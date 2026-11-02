@@ -32,6 +32,29 @@ namespace POS.Migrations
                     b.ToTable("Categorias");
                 });
 
+            modelBuilder.Entity("POS.Models.ClienteGuardado", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("ClientesGuardados");
+                });
+
             modelBuilder.Entity("POS.Models.ConfiguracionNegocio", b =>
                 {
                     b.Property<int>("Id")
@@ -66,6 +89,29 @@ namespace POS.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Configuraciones");
+                });
+
+            modelBuilder.Entity("POS.Models.CorreoGuardado", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("CorreosGuardados");
                 });
 
             modelBuilder.Entity("POS.Models.Cotizacion", b =>

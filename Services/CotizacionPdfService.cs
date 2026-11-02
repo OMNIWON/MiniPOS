@@ -3,6 +3,7 @@ using POS.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System.IO;
 
 namespace POS.Services;
 
@@ -56,26 +57,44 @@ public class CotizacionPdfService : ICotizacionPdfService
         }).GeneratePdf(rutaDestino);
     }
 
+    private static readonly Lazy<byte[]?> Logo = new(() =>
+    {
+        string ruta = Path.Combine(AppContext.BaseDirectory, "Recursos_App", "logo.png");
+        return File.Exists(ruta) ? File.ReadAllBytes(ruta) : null;
+    });
+
     private static void Encabezado(IContainer contenedor, Cotizacion cotizacion, ConfiguracionNegocio cfg)
     {
+        byte[]? logo = Logo.Value;
+
         contenedor.Column(columna =>
         {
             columna.Item().Row(fila =>
             {
-                fila.RelativeItem().Column(izquierda =>
+                fila.RelativeItem().Row(izquierda =>
                 {
-                    izquierda.Item().Text(cfg.NombreNegocio).FontSize(18).Bold();
+                    if (logo is not null)
+                        izquierda.ConstantItem(78).Height(78).Image(logo).FitArea();
 
-                    if (!string.IsNullOrWhiteSpace(cfg.Direccion))
-                        izquierda.Item().Text(cfg.Direccion);
+                    izquierda.RelativeItem()
+                        .PaddingLeft(logo is null ? 0 : 12)
+                        .AlignMiddle()
+                        .Column(datos =>
+                        {
+                            datos.Item().Text(cfg.NombreNegocio.ToUpperInvariant())
+                                .FontSize(20).Bold().FontColor(Colors.Grey.Darken4);
 
-                    if (!string.IsNullOrWhiteSpace(cfg.Telefono))
-                        izquierda.Item().Text($"Tel. {cfg.Telefono}");
+                            if (!string.IsNullOrWhiteSpace(cfg.Direccion))
+                                datos.Item().Text(cfg.Direccion);
+
+                            if (!string.IsNullOrWhiteSpace(cfg.Telefono))
+                                datos.Item().Text($"Tel. {cfg.Telefono}");
+                        });
                 });
 
-                fila.ConstantItem(170).Column(derecha =>
+                fila.ConstantItem(170).AlignMiddle().Column(derecha =>
                 {
-                    derecha.Item().AlignRight().Text("COTIZACIÓN").FontSize(18).Bold();
+                    derecha.Item().AlignRight().Text("COTIZACIÓN").FontSize(18).Bold().FontColor("#E8772E");
                     derecha.Item().AlignRight().Text($"No. {cotizacion.Id}");
                     derecha.Item().AlignRight().Text(
                         $"Fecha: {cotizacion.Fecha.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}");

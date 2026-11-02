@@ -35,6 +35,7 @@ public partial class App : Application
 
                 services.AddScoped<IAuthService, AuthService>();
                 services.AddScoped<IBackupService, BackupService>();
+                services.AddScoped<IAgendaService, AgendaService>();
                 services.AddSingleton<IConfiguracionService, ConfiguracionService>();
                 services.AddSingleton<ITicketService, TicketService>();
                 services.AddSingleton<ICotizacionPdfService, CotizacionPdfService>();

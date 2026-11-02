@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Net.Mail;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using POS.Models;
@@ -12,14 +11,16 @@ public partial class EnviarCorreoWindow : Window
     private readonly Cotizacion _cotizacion;
     private readonly ICotizacionPdfService _pdf;
     private readonly ICorreoService _correo;
+    private readonly IAgendaService _agenda;
 
-    public EnviarCorreoWindow(Cotizacion cotizacion, ICotizacionPdfService pdf,
-        ICorreoService correo, IConfiguracionService configuracion)
+    public EnviarCorreoWindow(Cotizacion cotizacion, ICotizacionPdfService pdf, ICorreoService correo,
+        IConfiguracionService configuracion, IAgendaService agenda)
     {
         InitializeComponent();
         _cotizacion = cotizacion;
         _pdf = pdf;
         _correo = correo;
+        _agenda = agenda;
 
         var negocio = configuracion.Actual;
 
@@ -34,6 +35,18 @@ public partial class EnviarCorreoWindow : Window
                            $"Quedamos atentos a cualquier duda.\n\n{firma}";
 
         TextoAdjunto.Text = $"📎 Se adjuntará: {NombreAdjunto()}";
+
+        Loaded += async (s, e) =>
+        {
+            try
+            {
+                CajaPara.ItemsSource = await _agenda.ObtenerCorreosAsync();
+            }
+            catch
+            {
+                // Sin sugerencias; el campo sigue funcionando.
+            }
+        };
     }
 
     private string NombreAdjunto() => $"Cotizacion-{_cotizacion.Id}.pdf";
@@ -42,9 +55,35 @@ public partial class EnviarCorreoWindow : Window
     {
         string para = CajaPara.Text.Trim();
 
-        if (!MailAddress.TryCreate(para, out _) || !para.Contains('@'))
+        var formato = ValidadorCorreo.Validar(para);
+        if (!formato.EsValido)
         {
-            Mostrar("Escribe un correo válido para el cliente.");
+            if (formato.Sugerencia is null)
+            {
+                Mostrar(formato.Mensaje ?? "El correo no es válido.");
+                return;
+            }
+
+            var respuesta = MessageBox.Show(
+                $"{formato.Mensaje}\n\n¿Quisiste decir {formato.Sugerencia}?",
+                "Revisa el correo", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (respuesta == MessageBoxResult.Yes)
+            {
+                CajaPara.Text = formato.Sugerencia;
+                Mostrar("Corregimos el correo. Revísalo y presiona Enviar.");
+            }
+
+            return;
+        }
+
+        BotonEnviar.IsEnabled = false;
+        Mostrar("Verificando el correo...");
+
+        if (await ValidadorCorreo.ComprobarDominioAsync(para) == EstadoDominio.NoExiste)
+        {
+            Mostrar("El dominio de ese correo no existe. Revisa que esté bien escrito.");
+            BotonEnviar.IsEnabled = true;
             return;
         }
 
@@ -52,12 +91,15 @@ public partial class EnviarCorreoWindow : Window
         {
             var config = App.AppHost.Services.GetRequiredService<CorreoConfigWindow>();
             config.Owner = this;
-            if (config.ShowDialog() != true) return;
+
+            if (config.ShowDialog() != true)
+            {
+                BotonEnviar.IsEnabled = true;
+                return;
+            }
         }
 
         string ruta = Path.Combine(Path.GetTempPath(), NombreAdjunto());
-
-        BotonEnviar.IsEnabled = false;
         Mostrar("Enviando...");
 
         try
@@ -65,9 +107,7 @@ public partial class EnviarCorreoWindow : Window
             await Task.Run(() => _pdf.Generar(_cotizacion, ruta));
             await _correo.EnviarAsync(para, CajaAsunto.Text.Trim(), CajaMensaje.Text, ruta);
 
-            MessageBox.Show($"La cotización se envió a {para}.", "Enviado",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-
+            await OfrecerGuardarCorreoAsync(para);
             DialogResult = true;
         }
         catch (Exception ex)
@@ -85,6 +125,31 @@ public partial class EnviarCorreoWindow : Window
             {
                 // El archivo temporal se limpia solo la próxima vez.
             }
+        }
+    }
+
+    private async Task OfrecerGuardarCorreoAsync(string correo)
+    {
+        try
+        {
+            if (await _agenda.ExisteCorreoAsync(correo))
+            {
+                MessageBox.Show($"La cotización se envió a {correo}.", "Enviado",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var respuesta = MessageBox.Show(
+                $"La cotización se envió a {correo}.\n\n¿Deseas guardar este correo para futuras sugerencias?",
+                "Enviado", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (respuesta == MessageBoxResult.Yes)
+                await _agenda.GuardarCorreoAsync(correo);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"La cotización se envió, pero no se pudo guardar el correo.\n\nDetalle: {ex.Message}",
+                "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 

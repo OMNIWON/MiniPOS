@@ -13,6 +13,8 @@ public class PosDbContext : DbContext
     public DbSet<DetalleCotizacion> DetallesCotizacion => Set<DetalleCotizacion>();
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<ConfiguracionNegocio> Configuraciones => Set<ConfiguracionNegocio>();
+    public DbSet<ClienteGuardado> ClientesGuardados => Set<ClienteGuardado>();
+    public DbSet<CorreoGuardado> CorreosGuardados => Set<CorreoGuardado>();
 
     public PosDbContext(DbContextOptions<PosDbContext> options) : base(options)
     {
@@ -20,6 +22,17 @@ public class PosDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ClienteGuardado>(e =>
+        {
+            e.Property(c => c.Nombre).IsRequired().HasMaxLength(120).UseCollation("NOCASE");
+            e.HasIndex(c => c.Nombre).IsUnique();
+        });
+
+        modelBuilder.Entity<CorreoGuardado>(e =>
+        {
+            e.Property(c => c.Email).IsRequired().HasMaxLength(254).UseCollation("NOCASE");
+            e.HasIndex(c => c.Email).IsUnique();
+        });
         modelBuilder.Entity<Venta>()
     .Property(v => v.TasaIva).HasColumnType("decimal(5,2)");
         modelBuilder.Entity<ConfiguracionNegocio>()
