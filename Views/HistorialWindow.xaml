@@ -182,23 +182,84 @@
                             <TextBlock Text="{Binding CotizacionSeleccionada.Nota1, TargetNullValue='(sin nota)'}" FontSize="14" TextWrapping="Wrap"/>
                             <TextBlock Text="Nota 2" FontSize="12" Foreground="{StaticResource ColorTextoSecundario}" Margin="0,8,0,2"/>
                             <TextBlock Text="{Binding CotizacionSeleccionada.Nota2, TargetNullValue='(sin nota)'}" FontSize="14" TextWrapping="Wrap"/>
-                            <Button Content="📝 Editar notas" Style="{StaticResource BotonNormal}" Margin="0,10,0,0"
-                                    Command="{Binding EditarNotasCotizacionCommand}"
-                                    CommandParameter="{Binding CotizacionSeleccionada}"/>
-                            <Button Content="🛒 Pasar a Venta" Style="{StaticResource BotonNormal}" Margin="0,10,0,0"
-                                    Command="{Binding PasarAVentaCommand}"
-                                    CommandParameter="{Binding CotizacionSeleccionada}"/>
-                            <Button Content="📄 Guardar PDF" Style="{StaticResource BotonNormal}" Margin="0,12,0,0"
-                                    Tag="{Binding CotizacionSeleccionada}" Click="CotizacionGuardarPdf_Click"/>
-                            <Button Content="🖨 Imprimir" Style="{StaticResource BotonNormal}" Margin="0,8,0,0"
-                                    Tag="{Binding CotizacionSeleccionada}" Click="CotizacionImprimir_Click"/>
-                            <Button Content="✉ Enviar por correo" Style="{StaticResource BotonNormal}" Margin="0,8,0,0"
-                                    Tag="{Binding CotizacionSeleccionada}" Click="CotizacionCorreo_Click"/>
 
-                            <Button Content="🗑 Eliminar cotización" Style="{StaticResource BotonPeligro}"
-                                    Margin="0,16,0,0"
-                                    Command="{Binding EliminarCotizacionCommand}"
-                                    CommandParameter="{Binding CotizacionSeleccionada}"/>
+                            <!-- ACCIONES PRINCIPALES -->
+                            <StackPanel Margin="0,12,0,0">
+
+                                <!-- 1. Pasar a venta -->
+                                <Button Content="🛒 Pasar a Venta"
+            Style="{StaticResource BotonNormal}"
+            Background="{StaticResource ColorAcento}"
+            Margin="0,0,0,8"
+            Command="{Binding PasarAVentaCommand}"
+            CommandParameter="{Binding CotizacionSeleccionada}"/>
+
+                                <!-- 2. Guardar PDF -->
+                                <Button Content="📄 Guardar PDF"
+            Style="{StaticResource BotonNormal}"
+            Margin="0,0,0,8"
+            Tag="{Binding CotizacionSeleccionada}"
+            Click="CotizacionGuardarPdf_Click"/>
+
+                                <!-- 3. Más opciones -->
+                                <Button FontSize="14"
+            Padding="10,8"
+            Command="{Binding AlternarOpcionesCotizacionCommand}">
+                                    <Button.Style>
+                                        <Style TargetType="Button"
+                   BasedOn="{StaticResource BotonNormal}">
+
+                                            <Setter Property="Background"
+                        Value="{StaticResource ColorTextoSecundario}"/>
+
+                                            <Setter Property="Content"
+                        Value="⚙ Más opciones ▾"/>
+
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding MostrarOpcionesCotizacion}"
+                                 Value="True">
+                                                    <Setter Property="Content"
+                                Value="⚙ Menos opciones ▴"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+
+                                <!-- ACCIONES SECUNDARIAS -->
+                                <StackPanel Margin="0,8,0,0"
+                Visibility="{Binding MostrarOpcionesCotizacion,
+                    Converter={StaticResource BoolAVisible}}">
+
+                                    <Button Content="📝 Editar notas"
+                Style="{StaticResource BotonNormal}"
+                Margin="0,0,0,8"
+                Command="{Binding EditarNotasCotizacionCommand}"
+                CommandParameter="{Binding CotizacionSeleccionada}"/>
+
+                                    <Button Content="🖨 Imprimir"
+                Style="{StaticResource BotonNormal}"
+                Margin="0,0,0,8"
+                Tag="{Binding CotizacionSeleccionada}"
+                Click="CotizacionImprimir_Click"/>
+
+                                    <Button Content="✉ Enviar por correo"
+                Style="{StaticResource BotonNormal}"
+                Margin="0,0,0,8"
+                Tag="{Binding CotizacionSeleccionada}"
+                Click="CotizacionCorreo_Click"/>
+
+                                    <Button Content="🗑 Eliminar cotización"
+                Style="{StaticResource BotonPeligro}"
+                Margin="0,8,0,0"
+                Command="{Binding EliminarCotizacionCommand}"
+                CommandParameter="{Binding CotizacionSeleccionada}"/>
+
+                                </StackPanel>
+
+                            </StackPanel>
+
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>

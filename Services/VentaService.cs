@@ -18,6 +18,17 @@ public class VentaService : IVentaService
     public async Task<Venta> ConfirmarVentaAsync(List<DetalleVenta> detalles, decimal dineroRecibido,
         MetodoPago metodoPago = MetodoPago.Efectivo, DesgloseVenta? desglose = null)
     {
+        var detalleSinPrecio = detalles.FirstOrDefault(detalle => detalle.PrecioUnitario <= 0m);
+
+        if (detalleSinPrecio is not null)
+        {
+            throw new InvalidOperationException(
+                $"No se puede registrar la venta. " +
+                $"El producto '{detalleSinPrecio.NombreProducto}' " +
+                "tiene un precio unitario de cero o negativo.");
+        }
+
+
         using var transaccion = await _context.Database.BeginTransactionAsync();
         try
         {

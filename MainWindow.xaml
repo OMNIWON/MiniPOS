@@ -91,8 +91,36 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Carrito" Style="{StaticResource TituloSeccion}"/>
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
+                        <TextBlock Grid.Column="0"
+               Text="Carrito"
+               Style="{StaticResource TituloSeccion}"
+               Margin="0"
+               VerticalAlignment="Center"/>
+
+                        <Button Grid.Column="1"
+            FontSize="13"
+            Padding="10,6"
+            Command="{Binding AlternarOpcionesCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotonNormal}">
+                                    <Setter Property="Background" Value="{StaticResource ColorAcento}"/>
+                                    <Setter Property="Content" Value="⚙ Más opciones ▾"/>
+
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MostrarOpciones}" Value="True">
+                                            <Setter Property="Content" Value="⚙ Menos opciones ▴"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                         <ItemsControl ItemsSource="{Binding Carrito}">
                             <ItemsControl.ItemTemplate>
@@ -101,52 +129,98 @@
                                         <StackPanel>
                                             <TextBlock Text="{Binding Producto.Nombre}" FontSize="16" FontWeight="SemiBold"
                                                        Foreground="{StaticResource ColorTexto}"/>
+                                            <!-- Cantidad, subtotal y eliminar -->
                                             <Grid Margin="0,6,0,0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="34"/>
                                                     <ColumnDefinition Width="50"/>
                                                     <ColumnDefinition Width="34"/>
-                                                    <ColumnDefinition Width="80"/>
-                                                    <ColumnDefinition Width="70"/>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="36"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <Button Grid.Column="0" Content="−" FontSize="16" Padding="0"
-                                                        Style="{StaticResource BotonNormal}"
-                                                        Command="{Binding DataContext.DecrementarCantidadCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                        CommandParameter="{Binding}"/>
+                                                <Button Grid.Column="0"
+            Content="−"
+            FontSize="16"
+            Padding="0"
+            Style="{StaticResource BotonNormal}"
+            Command="{Binding DataContext.DecrementarCantidadCommand,
+                      RelativeSource={RelativeSource AncestorType=Window}}"
+            CommandParameter="{Binding}"/>
 
-                                                <TextBox Grid.Column="1" Text="{Binding Cantidad, UpdateSourceTrigger=LostFocus}"
-                                                         FontSize="14" VerticalAlignment="Center" Margin="3,0"
-                                                         TextAlignment="Center" Padding="3"/>
+                                                <TextBox Grid.Column="1"
+             Text="{Binding Cantidad, UpdateSourceTrigger=LostFocus}"
+             FontSize="14"
+             VerticalAlignment="Center"
+             Margin="3,0"
+             TextAlignment="Center"
+             Padding="3"/>
 
-                                                <Button Grid.Column="2" Content="+" FontSize="16" Padding="0"
-                                                        Style="{StaticResource BotonNormal}"
-                                                        Command="{Binding DataContext.IncrementarCantidadCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                        CommandParameter="{Binding}"/>
+                                                <Button Grid.Column="2"
+            Content="+"
+            FontSize="16"
+            Padding="0"
+            Style="{StaticResource BotonNormal}"
+            Command="{Binding DataContext.IncrementarCantidadCommand,
+                      RelativeSource={RelativeSource AncestorType=Window}}"
+            CommandParameter="{Binding}"/>
 
-                                                <TextBox Grid.Column="3" Text="{Binding PrecioUnitario, UpdateSourceTrigger=LostFocus, StringFormat=N2}"
-                                                         FontSize="14" VerticalAlignment="Center" Margin="6,0,3,0"
-                                                         TextAlignment="Right" Padding="3"
-                                                         ToolTip="Precio unitario (editable solo en esta venta)"/>
+                                                <TextBlock Grid.Column="3"
+               Text="{Binding Subtotal, StringFormat='{}{0:C2}'}"
+               FontSize="15"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               HorizontalAlignment="Right"
+               Foreground="{StaticResource ColorTexto}"/>
 
-                                                <TextBox Grid.Column="4" Text="{Binding DescuentoPorcentaje, UpdateSourceTrigger=LostFocus, StringFormat=N0}"
-                                                         FontSize="14" VerticalAlignment="Center" Margin="3,0"
-                                                         TextAlignment="Right" Padding="3"
-                                                         ToolTip="Descuento en % para esta línea (0-100)"/>
-
-                                                <TextBlock Grid.Column="5" Text="{Binding Subtotal, StringFormat='{}{0:C2}'}"
-                                                           FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"
-                                                           HorizontalAlignment="Right" Foreground="{StaticResource ColorTexto}"/>
-
-                                                <Button Grid.Column="6" Content="🗑" FontSize="14"
-                                                        Style="{StaticResource BotonPeligro}" Padding="2"
-                                                        Command="{Binding DataContext.QuitarDelCarritoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                        CommandParameter="{Binding}"/>
+                                                <Button Grid.Column="4"
+            Content="🗑"
+            FontSize="14"
+            Style="{StaticResource BotonPeligro}"
+            Padding="2"
+            Command="{Binding DataContext.QuitarDelCarritoCommand,
+                      RelativeSource={RelativeSource AncestorType=Window}}"
+            CommandParameter="{Binding}"/>
                                             </Grid>
-                                            <TextBlock Text="Cant. | Precio | Descuento %" FontSize="11"
-                                                       Foreground="{StaticResource ColorTextoSecundario}" Margin="0,2,0,0"/>
+
+                                            <!-- Opciones avanzadas: precio y descuento -->
+                                            <StackPanel Orientation="Horizontal"
+            Margin="0,8,0,0"
+            Visibility="{Binding DataContext.MostrarOpciones,
+                         RelativeSource={RelativeSource AncestorType=Window},
+                         Converter={StaticResource BoolAVisible}}">
+
+                                                <TextBlock Text="Precio"
+               FontSize="12"
+               VerticalAlignment="Center"
+               Margin="0,0,6,0"
+               Foreground="{StaticResource ColorTextoSecundario}"/>
+
+                                                <TextBox Text="{Binding PrecioUnitario,
+                    UpdateSourceTrigger=LostFocus,
+                    StringFormat=N2}"
+             Width="95"
+             FontSize="14"
+             Padding="3"
+             TextAlignment="Right"
+             Margin="0,0,18,0"
+             ToolTip="Precio unitario personalizado para esta venta"/>
+
+                                                <TextBlock Text="Desc. %"
+               FontSize="12"
+               VerticalAlignment="Center"
+               Margin="0,0,6,0"
+               Foreground="{StaticResource ColorTextoSecundario}"/>
+
+                                                <TextBox Text="{Binding DescuentoPorcentaje,
+                    UpdateSourceTrigger=LostFocus,
+                    StringFormat=N0}"
+             Width="60"
+             FontSize="14"
+             Padding="3"
+             TextAlignment="Right"
+             ToolTip="Descuento porcentual de esta línea (0-100)"/>
+                                            </StackPanel>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>

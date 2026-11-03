@@ -90,7 +90,20 @@ public partial class HistorialViewModel : ObservableObject
     private void SeleccionarVenta(Venta venta) => VentaSeleccionada = venta;
 
     [RelayCommand]
-    private void SeleccionarCotizacion(Cotizacion cotizacion) => CotizacionSeleccionada = cotizacion;
+    private void SeleccionarCotizacion(Cotizacion cotizacion)
+    {
+        MostrarOpcionesCotizacion = false;
+        CotizacionSeleccionada = cotizacion;
+    }
+
+    [ObservableProperty]
+    private bool mostrarOpcionesCotizacion;
+
+    [RelayCommand]
+    private void AlternarOpcionesCotizacion()
+    {
+        MostrarOpcionesCotizacion = !MostrarOpcionesCotizacion;
+    }
 
     [RelayCommand]
     private async Task EditarNotasVentaAsync(Venta venta)

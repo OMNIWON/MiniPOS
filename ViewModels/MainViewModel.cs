@@ -21,6 +21,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private decimal impuestos;
     [ObservableProperty] private decimal total;
     [ObservableProperty] private string? mensajeError;
+    [ObservableProperty] private bool mostrarOpciones;
 
     public bool MuestraIva => _configuracion.Actual.IvaActivo;
     public string EtiquetaIva => $"IVA ({_configuracion.Actual.TasaIva:0.##}%)";
@@ -76,6 +77,12 @@ public partial class MainViewModel : ObservableObject
     partial void OnTextoBusquedaChanged(string value)
     {
         _ = CargarProductosAsync();
+    }
+
+    [RelayCommand]
+    private void AlternarOpciones()
+    {
+        MostrarOpciones = !MostrarOpciones;
     }
 
     [RelayCommand]
@@ -202,6 +209,20 @@ public partial class MainViewModel : ObservableObject
 
     public async Task<Venta> ConfirmarVentaAsync(decimal dineroRecibido, MetodoPago metodoPago)
     {
+        // Evitar ventas con productos sin precio o con precio negativo.
+        var productoSinPrecio = Carrito.FirstOrDefault(
+            item => item.PrecioUnitario <= 0m);
+
+        if (productoSinPrecio is not null)
+        {
+            throw new InvalidOperationException(
+                $"No se puede realizar la venta. El producto " +
+                $"'{productoSinPrecio.Producto.Nombre}' tiene un precio de " +
+                $"{productoSinPrecio.PrecioUnitario:C2}. " +
+                "Asigna un precio mayor a cero antes de continuar.");
+        }
+
+
         var detalles = Carrito.Select(c => new DetalleVenta
         {
             ProductoId = c.Producto.Id,
